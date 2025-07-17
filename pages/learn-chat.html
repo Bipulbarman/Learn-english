@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Chat</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* Specific styles for Learn Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Take full height of iframe */
+            background-color: var(--surface-color);
+            box-sizing: border-box;
+        }
+
+        .chat-display {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid var(--border-color);
+            scroll-behavior: smooth;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 85%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .chat-message.user {
+            background-color: var(--chat-user-bg);
+            margin-left: auto;
+            text-align: right;
+            border-bottom-right-radius: 5px; /* More subtle rounded corner */
+            position: relative;
+        }
+
+        .chat-message.ai {
+            background-color: var(--chat-ai-bg);
+            margin-right: auto;
+            border-bottom-left-radius: 5px; /* More subtle rounded corner */
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            align-items: flex-end; /* Align textarea with send button */
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input-area textarea {
+            flex-grow: 1;
+            margin-bottom: 0;
+            max-height: 120px;
+            min-height: 40px;
+            box-sizing: border-box;
+            border-radius: 20px; /* More rounded input */
+            padding: 10px 15px;
+            line-height: 1.4;
+        }
+
+        .chat-input-area .btn {
+            padding: 10px 20px;
+            height: 40px; /* Match textarea min-height */
+            border-radius: 20px; /* Match textarea border-radius */
+            box-shadow: none; /* Remove shadow for a cleaner look */
+        }
+        .chat-input-area .btn:hover {
+            transform: none;
+        }
+
+        .grammar-feedback, .word-meaning-popup {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            z-index: 100;
+            white-space: pre-wrap;
+            max-width: 250px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            bottom: calc(100% + 8px); /* Position above the message */
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: normal; /* Allow text to wrap */
+        }
+        .grammar-feedback.active, .word-meaning-popup.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .grammar-error {
+            text-decoration: underline wavy var(--secondary-color); /* Red underline */
+            cursor: help;
+            font-weight: 500;
+        }
+        .meaning-word {
+            text-decoration: underline dotted var(--primary-color); /* Blue dotted underline */
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--background-color);
+            justify-content: center;
+        }
+
+        .suggestion-buttons .btn {
+            padding: 8px 15px;
+            font-size: 0.85em;
+            background-color: #e9ecef;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: none;
+        }
+        .suggestion-buttons .btn:hover {
+            background-color: #dee2e6;
+            transform: none;
+        }
+        .suggestion-buttons .btn:active {
+            transform: none;
+        }
+
+        /* Adjustments for page-content to fit chat layout */
+        .page-content {
+            padding: 0; /* Remove padding from .page-content for chat */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .page-content h2 {
+            padding: 20px 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-content">
+        <h2>💬 Learn Chat with AI Tutor</h2>
+
+        <div class="chat-container">
+            <div class="chat-display" id="chatDisplay">
+                <div class="chat-message ai">Hello! I'm your AI English tutor. How can I help you today?</div>
+            </div>
+            <div class="suggestion-buttons" id="suggestionButtons">
+                <!-- Suggestions will be populated here by JavaScript -->
+            </div>
+            <div class="chat-input-area">
+                <textarea id="userInput" placeholder="Type your message here..."></textarea>
+                <button class="btn" id="sendMessageBtn">Send</button>
+            </div>
+             <div class="loading-spinner" id="chatLoadingSpinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // Frontend JavaScript for Learn Chat
+        const chatDisplay = document.getElementById('chatDisplay');
+        const userInput = document.getElementById('userInput');
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        const suggestionButtons = document.getElementById('suggestionButtons');
+        const chatLoadingSpinner = document.getElementById('chatLoadingSpinner');
+
+        // --- Helper function to append messages ---
+        function appendMessage(sender, text, grammarFeedback = null, wordMeanings = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender);
+
+            let displayHtml = text;
+            if (sender === 'user' && grammarFeedback && grammarFeedback.corrections && grammarFeedback.corrections.length > 0) {
+                displayHtml = highlightGrammarErrors(text, grammarFeedback.corrections);
+            }
+            messageDiv.innerHTML = displayHtml;
+
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
+
+            if (sender === 'user') {
+                if (grammarFeedback && grammarFeedback.corrections && grammarFeedback.corrections.length > 0) {
+                    attachGrammarHoverListeners(messageDiv, grammarFeedback.corrections);
+                }
+                if (wordMeanings && Object.keys(wordMeanings).length > 0) {
+                    attachWordMeaningListeners(messageDiv, wordMeanings);
+                }
+            }
+        }
+
+        // --- Grammar Error Highlighting and Tooltip ---
+        function highlightGrammarErrors(text, corrections) {
+            let html = text;
+            // Sort corrections by start index descending to avoid issues with string manipulation
+            corrections.sort((a, b) => b.start_index - a.start_index).forEach(correction => {
+                const original = text.substring(correction.start_index, correction.end_index);
+                const replacement = `<span class="grammar-error" data-feedback="${correction.feedback_text.replace(/"/g, '&quot;')}" data-original="${original}">${original}</span>`;
+                html = html.substring(0, correction.start_index) + replacement + html.substring(correction.end_index);
+            });
+            return html;
+        }
+
+        function attachGrammarHoverListeners(messageDiv, corrections) {
+            messageDiv.querySelectorAll('.grammar-error').forEach(span => {
+                let popup = null;
+                span.addEventListener('mouseenter', () => {
+                    if (!popup) {
+                        popup = document.createElement('div');
+                        popup.classList.add('grammar-feedback');
+                        popup.textContent = span.dataset.feedback;
+                        messageDiv.appendChild(popup); // Append to messageDiv, not span directly for positioning
+                        // Position popup relative to the span
+                        const spanRect = span.getBoundingClientRect();
+                        const messageRect = messageDiv.getBoundingClientRect();
+                        popup.style.left = `${spanRect.left - messageRect.left + (spanRect.width / 2)}px`;
+                        popup.style.bottom = `${messageRect.height - (spanRect.top - messageRect.top)}px`; // Position above the word
+                        popup.style.transform = 'translateX(-50%)';
+
+                        setTimeout(() => popup.classList.add('active'), 10);
+                    }
+                });
+                span.addEventListener('mouseleave', () => {
+                    if (popup) {
+                        popup.classList.remove('active');
+                        setTimeout(() => { if(popup.parentNode) popup.parentNode.removeChild(popup); popup = null; }, 300);
+                    }
+                });
+            });
+        }
+
+        // --- Word Meaning Popups ---
+        function attachWordMeaningListeners(messageDiv, wordMeanings) {
+            // This is a simplified approach. For robustness, you'd tokenize the text
+            // and wrap each word in a span.
+            const words = messageDiv.textContent.split(/(\s+)/); // Split by whitespace, keeping delimiters
+            messageDiv.innerHTML = ''; // Clear original content
+            words.forEach(part => {
+                const span = document.createElement('span');
+                span.textContent = part;
+
+                if (part.trim().length > 0) { // If it's a word
+                    const cleanWord = part.replace(/[^a-zA-Z0-9']/g, '').toLowerCase();
+                    if (wordMeanings[cleanWord]) {
+                        span.classList.add('meaning-word');
+                        let popup = null;
+                        span.addEventListener('click', (event) => {
+                            event.stopPropagation(); // Prevent document click from closing it immediately
+                            if (popup && popup.classList.contains('active')) {
+                                popup.classList.remove('active');
+                                setTimeout(() => { if(popup.parentNode) popup.parentNode.removeChild(popup); popup = null; }, 300);
+                            } else {
+                                // Close any other open popups first
+                                document.querySelectorAll('.word-meaning-popup.active').forEach(p => {
+                                    p.classList.remove('active');
+                                    setTimeout(() => { if(p.parentNode) p.parentNode.removeChild(p); }, 300);
+                                });
+
+                                popup = document.createElement('div');
+                                popup.classList.add('word-meaning-popup');
+                                popup.textContent = wordMeanings[cleanWord];
+                                messageDiv.appendChild(popup); // Append to messageDiv, not span directly for positioning
+                                // Position popup relative to the span
+                                const spanRect = span.getBoundingClientRect();
+                                const messageRect = messageDiv.getBoundingClientRect();
+                                popup.style.left = `${spanRect.left - messageRect.left + (spanRect.width / 2)}px`;
+                                popup.style.bottom = `${messageRect.height - (spanRect.top - messageRect.top)}px`; // Position above the word
+                                popup.style.transform = 'translateX(-50%)';
+
+                                setTimeout(() => popup.classList.add('active'), 10);
+                            }
+                        });
+                    }
+                }
+                messageDiv.appendChild(span);
+            });
+             // Close popup if clicking anywhere else on the message div
+            messageDiv.addEventListener('click', (event) => {
+                document.querySelectorAll('.word-meaning-popup.active').forEach(p => {
+                    if (!p.contains(event.target) && !event.target.classList.contains('meaning-word')) {
+                        p.classList.remove('active');
+                        setTimeout(() => { if(p.parentNode) p.parentNode.removeChild(p); }, 300);
+                    }
+                });
+            });
+        }
+
+
+        // --- Send Message Function ---
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            // Immediately append user message (without feedback yet)
+            appendMessage('user', message);
+            userInput.value = '';
+            chatLoadingSpinner.classList.add('active'); // Show spinner
+            suggestionButtons.innerHTML = ''; // Clear suggestions while processing
+
+            try {
+                const response = await fetch('/api/chat', { // THIS IS YOUR BACKEND ENDPOINT
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Backend response:", data);
+
+                // Update the last user message with grammar feedback and word meanings
+                const lastUserMessageDiv = chatDisplay.querySelector('.chat-message.user:last-child');
+                if (lastUserMessageDiv) {
+                    // Re-process the user message HTML with feedback
+                    let updatedUserHtml = message;
+                    if (data.grammarFeedback && data.grammarFeedback.corrections && data.grammarFeedback.corrections.length > 0) {
+                        updatedUserHtml = highlightGrammarErrors(message, data.grammarFeedback.corrections);
+                    }
+                    lastUserMessageDiv.innerHTML = updatedUserHtml;
+
+                    // Re-attach listeners after updating innerHTML
+                    if (data.grammarFeedback && data.grammarFeedback.corrections && data.grammarFeedback.corrections.length > 0) {
+                        attachGrammarHoverListeners(lastUserMessageDiv, data.grammarFeedback.corrections);
+                    }
+                    if (data.wordMeanings && Object.keys(data.wordMeanings).length > 0) {
+                        attachWordMeaningListeners(lastUserMessageDiv, data.wordMeanings);
+                    }
+                }
+
+                // Append AI's response
+                if (data.geminiResponse) {
+                    appendMessage('ai', data.geminiResponse);
+                }
+
+                // Populate new suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    data.suggestions.forEach(suggestion => {
+                        const btn = document.createElement('button');
+                        btn.classList.add('btn');
+                        btn.textContent = suggestion;
+                        btn.addEventListener('click', () => {
+                            userInput.value = suggestion;
+                            sendMessage();
+                        });
+                        suggestionButtons.appendChild(btn);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+                appendMessage('ai', 'Oops! Something went wrong. Please try again.');
+            } finally {
+                chatLoadingSpinner.classList.remove('active'); // Hide spinner
+            }
+        }
+
+        sendMessageBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
