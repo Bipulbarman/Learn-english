@@ -1,0 +1,262 @@
+/* Global Styles & Reset */
+:root {
+    --primary-color: #4285F4; /* Google Blue */
+    --secondary-color: #EA4335; /* Google Red */
+    --accent-color: #FBBC04; /* Google Yellow */
+    --text-color: #3C4043; /* Dark Grey */
+    --light-text-color: #5F6368; /* Medium Grey */
+    --background-color: #F8F9FA; /* Light Grey Background */
+    --surface-color: #FFFFFF; /* White for cards/containers */
+    --border-color: #DADCE0; /* Light border */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --chat-ai-bg: #e8f0fe; /* Light blue for AI messages */
+    --chat-user-bg: #f1f3f4; /* Light grey for user messages */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; /* Hide overflow for the main app container */
+}
+
+/* App Container (mimics a mobile/tablet app frame) */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 700px; /* Max width for desktop view */
+    height: 100vh; /* Full height on mobile */
+    max-height: 900px; /* Max height for desktop view */
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    overflow: hidden;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.app-title {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.user-profile .material-icons {
+    font-size: 28px;
+    color: var(--light-text-color);
+    cursor: pointer;
+}
+
+/* Content Area (Iframe Container) */
+.content-area {
+    flex-grow: 1;
+    overflow: hidden; /* Important for iframe to fit */
+    position: relative;
+}
+
+.content-area iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    background-color: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.03);
+    z-index: 10;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    color: var(--light-text-color);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.nav-button .material-icons {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.nav-button:hover {
+    background-color: #f0f0f0;
+    color: var(--text-color);
+}
+
+.nav-button.active {
+    color: var(--primary-color);
+    background-color: #e8f0fe; /* Light blue background for active */
+}
+
+/* --- Common Styles for Iframe Content --- */
+/* These styles will be included in each HTML file inside the 'pages' directory */
+/* Or, you can link this same style.css inside each iframe page as well.
+   For simplicity, I'll put these directly in each iframe HTML file's <style> tag. */
+
+.page-content {
+    padding: 20px;
+    height: calc(100% - 40px); /* Adjust for padding */
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+h2 {
+    font-size: 1.8em;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    background-color: #357ae8;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background-color: var(--light-text-color);
+}
+.btn-secondary:hover {
+    background-color: #4a4d50;
+}
+
+.btn-success {
+    background-color: #34A853; /* Google Green */
+}
+.btn-success:hover {
+    background-color: #2D8B45;
+}
+
+.btn-danger {
+    background-color: var(--secondary-color);
+}
+.btn-danger:hover {
+    background-color: #C53929;
+}
+
+input[type="text"],
+textarea {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+    outline: none;
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none; /* Hidden by default */
+}
+
+.loading-spinner.active {
+    display: block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-container {
+        border-radius: 0;
+        height: 100vh;
+        max-height: unset;
+    }
+    .app-header {
+        padding: 15px;
+    }
+    .app-title {
+        font-size: 1.4em;
+    }
+    .bottom-nav {
+        padding: 8px 0;
+    }
+    .nav-button {
+        padding: 6px 10px;
+    }
+    .nav-button .material-icons {
+        font-size: 20px;
+    }
+    .nav-button .button-text {
+        font-size: 0.75em;
+    }
+}

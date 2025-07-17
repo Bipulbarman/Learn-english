@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Learning AI App</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Poppins Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <h1 class="app-title">English AI Tutor</h1>
+            <div class="user-profile">
+                <!-- User profile icon or name could go here -->
+                <span class="material-icons">account_circle</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area (Iframe) -->
+        <main class="content-area">
+            <iframe id="contentFrame" src="pages/home.html" frameborder="0"></iframe>
+        </main>
+
+        <!-- Bottom Navigation Buttons -->
+        <nav class="bottom-nav">
+            <button class="nav-button active" data-page="home">
+                <span class="material-icons">home</span>
+                <span class="button-text">Home</span>
+            </button>
+            <button class="nav-button" data-page="learn-chat">
+                <span class="material-icons">chat</span>
+                <span class="button-text">Chat</span>
+            </button>
+            <button class="nav-button" data-page="fill-in-blanks">
+                <span class="material-icons">edit_note</span>
+                <span class="button-text">Fill Blanks</span>
+            </button>
+            <button class="nav-button" data-page="reading-comprehension">
+                <span class="material-icons">menu_book</span>
+                <span class="button-text">Reading</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Google Material Icons (for the icons) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="script.js"></script>
+</body>
+</html>
