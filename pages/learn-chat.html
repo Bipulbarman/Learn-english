@@ -10,70 +10,76 @@
     <style>
         /* --- 1. Global Styles & Theme --- */
         :root {
-            --background-color: #f8f9fa;
-            --popup-bg-color: #ffffff;
-            --chat-surface-color: #f8f9fa;
-            --primary-color: #0d6efd;
-            --primary-hover-color: #0b5ed7;
-            --user-message-bg: #e9ecef;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --icon-color: #6c757d;
-            --cut-corner-size: 20px;
+            -[span_0](start_span)-background-color: #f8f9fa;[span_0](end_span)
+            -[span_1](start_span)-popup-bg-color: #ffffff;[span_1](end_span)
+            -[span_2](start_span)-chat-surface-color: #f8f9fa;[span_2](end_span)
+            -[span_3](start_span)-primary-color: #0d6efd;[span_3](end_span)
+            -[span_4](start_span)-primary-hover-color: #0b5ed7;[span_4](end_span)
+            -[span_5](start_span)-user-message-bg: #e9ecef;[span_5](end_span)
+            -[span_6](start_span)-text-primary: #212529;[span_6](end_span)
+            -[span_7](start_span)-text-secondary: #6c757d;[span_7](end_span)
+            -[span_8](start_span)-border-color: #dee2e6;[span_8](end_span)
+            -[span_9](start_span)-shadow-color: rgba(0, 0, 0, 0.1);[span_9](end_span)
+            -[span_10](start_span)-icon-color: #6c757d;[span_10](end_span)
+            -[span_11](start_span)-cut-corner-size: 20px;[span_11](end_span)
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * [span_12](start_span){ margin: 0;[span_12](end_span)
+            [span_13](start_span)padding: 0;[span_13](end_span)
+            [span_14](start_span)box-sizing: border-box;[span_14](end_span)
+        }
 
         html, body {
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-primary);
+            [span_15](start_span)height: 100%;[span_15](end_span)
+            [span_16](start_span)overflow: hidden;[span_16](end_span)
+            [span_17](start_span)font-family: 'Plus Jakarta Sans', sans-serif;[span_17](end_span)
+            [span_18](start_span)background-color: var(--background-color);[span_18](end_span)
+            [span_19](start_span)color: var(--text-primary);[span_19](end_span)
         }
 
         /* --- 2. Main App Layout --- */
-        .chat-app-container { display: flex; height: 100vh; position: relative; }
+        .chat-app-container {
+            [span_20](start_span)display: flex;[span_20](end_span)
+            [span_21](start_span)height: 100vh;[span_21](end_span)
+            [span_22](start_span)position: relative;[span_22](end_span)
+        }
         .main-chat-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            position: relative;
-            /* Added for the animated text positioning */
-            overflow: hidden; /* To contain the animated text if it moves out of bounds */
+            [span_23](start_span)flex-grow: 1;[span_23](end_span)
+            [span_24](start_span)display: flex;[span_24](end_span)
+            [span_25](start_span)flex-direction: column;[span_25](end_span)
+            [span_26](start_span)height: 100%;[span_26](end_span)
+            [span_27](start_span)position: relative;[span_27](end_span)
+            [span_28](start_span)overflow: hidden;[span_28](end_span)
         }
 
         /* --- Animated Text Styles --- */
         .animated-greeting {
-            position: absolute;
-            top: 50%; /* Adjust as needed */
-            left: 50%; /* Adjust as needed */
-            transform: translate(-50%, -50%); /* Center the element */
-            font-size: 2.5em; /* Adjust font size as needed */
-            font-weight: 600;
-            color: #4285F4; /* Google Blue color, similar to the image */
-            opacity: 0; /* Start hidden */
-            animation: fadeInScale 1.5s ease-out forwards; /* Animation properties */
-            white-space: nowrap; /* Prevent text wrapping */
-            z-index: 1; /* Ensure it's above other elements if needed, but below the input */
-            text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for better visibility */
+            [span_29](start_span)position: absolute;[span_29](end_span)
+            [span_30](start_span)top: 50%;[span_30](end_span)
+            [span_31](start_span)left: 50%;[span_31](end_span)
+            [span_32](start_span)transform: translate(-50%, -50%);[span_32](end_span)
+            [span_33](start_span)font-size: 2.5em;[span_33](end_span)
+            [span_34](start_span)font-weight: 600;[span_34](end_span)
+            [span_35](start_span)color: #4285F4;[span_35](end_span)
+            [span_36](start_span)opacity: 0;[span_36](end_span)
+            [span_37](start_span)animation: fadeInScale 1.5s ease-out forwards;[span_37](end_span)
+            [span_38](start_span)white-space: nowrap;[span_38](end_span)
+            [span_39](start_span)z-index: 1;[span_39](end_span)
+            [span_40](start_span)text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);[span_40](end_span)
         }
 
         @keyframes fadeInScale {
             0% {
-                opacity: 0;
-                transform: translate(-50%, -40%) scale(0.8);
+                [span_41](start_span)opacity: 0;[span_41](end_span)
+                [span_42](start_span)transform: translate(-50%, -40%) scale(0.8);[span_42](end_span)
             }
             70% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.05);
+                [span_43](start_span)opacity: 1;[span_43](end_span)
+                [span_44](start_span)transform: translate(-50%, -50%) scale(1.05);[span_44](end_span)
             }
             100% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
+                [span_45](start_span)opacity: 1;[span_45](end_span)
+                [span_46](start_span)transform: translate(-50%, -50%) scale(1);[span_46](end_span)
             }
         }
         /* End Animated Text Styles */
@@ -81,192 +87,320 @@
 
         /* --- 3. History Popup Section --- */
         .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            [span_47](start_span)position: fixed;[span_47](end_span)
+            [span_48](start_span)top: 0;[span_48](end_span)
+            [span_49](start_span)left: 0;[span_49](end_span)
+            [span_50](start_span)width: 100%;[span_50](end_span)
+            [span_51](start_span)height: 100%;[span_51](end_span)
+            [span_52](start_span)background-color: rgba(0, 0, 0, 0.4);[span_52](end_span)
+            [span_53](start_span)backdrop-filter: blur(5px);[span_53](end_span)
+            [span_54](start_span)display: flex;[span_54](end_span)
+            [span_55](start_span)align-items: center;[span_55](end_span)
+            [span_56](start_span)justify-content: center;[span_56](end_span)
+            [span_57](start_span)z-index: 1000;[span_57](end_span)
+            [span_58](start_span)opacity: 0;[span_58](end_span)
+            [span_59](start_span)visibility: hidden;[span_59](end_span)
+            [span_60](start_span)transition: opacity 0.3s ease, visibility 0.3s ease;[span_60](end_span)
         }
         .popup-overlay.open {
-            opacity: 1;
-            visibility: visible;
+            [span_61](start_span)opacity: 1;[span_61](end_span)
+            [span_62](start_span)visibility: visible;[span_62](end_span)
         }
 
         .history-popup {
-            background-color: var(--popup-bg-color);
-            width: 90%;
-            max-width: 420px;
-            height: 85vh;
-            max-height: 700px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            /* Cut Corners Effect */
+            [span_63](start_span)background-color: var(--popup-bg-color);[span_63](end_span)
+            [span_64](start_span)width: 90%;[span_64](end_span)
+            [span_65](start_span)max-width: 420px;[span_65](end_span)
+            [span_66](start_span)height: 85vh;[span_66](end_span)
+            [span_67](start_span)max-height: 700px;[span_67](end_span)
+            [span_68](start_span)border-radius: 12px;[span_68](end_span)
+            [span_69](start_span)box-shadow: 0 10px 30px rgba(0,0,0,0.2);[span_69](end_span)
+            [span_70](start_span)padding: 20px;[span_70](end_span)
+            [span_71](start_span)display: flex;[span_71](end_span)
+            [span_72](start_span)flex-direction: column;[span_72](end_span)
+            [span_73](start_span)position: relative;[span_73](end_span)
             clip-path: polygon(
                 var(--cut-corner-size) 10,
                 calc(100% - var(--cut-corner-size)) 10,
                 100% var(--cut-corner-size),
                 100% calc(100% - var(--cut-corner-size)),
-                calc(100% - var(--cut-corner-size)) 100%,
+                [span_74](start_span)calc(100% - var(--cut-corner-size)) 100%,[span_74](end_span)
                 var(--cut-corner-size) 100%,
                 10 calc(100% - var(--cut-corner-size)),
                 10 var(--cut-corner-size)
             );
-            /* Animation */
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
+            [span_75](start_span)transform: scale(0.95);[span_75](end_span)
+            [span_76](start_span)transition: transform 0.3s ease;[span_76](end_span)
         }
         .popup-overlay.open .history-popup {
-            transform: scale(1);
+            [span_77](start_span)transform: scale(1);[span_77](end_span)
         }
 
         .exit-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--user-message-bg);
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--icon-color);
-            transition: background-color 0.2s, transform 0.2s;
+            [span_78](start_span)position: absolute;[span_78](end_span)
+            [span_79](start_span)top: 12px;[span_79](end_span)
+            [span_80](start_span)right: 12px;[span_80](end_span)
+            [span_81](start_span)background: var(--user-message-bg);[span_81](end_span)
+            [span_82](start_span)border: none;[span_82](end_span)
+            [span_83](start_span)border-radius: 50%;[span_83](end_span)
+            [span_84](start_span)width: 32px;[span_84](end_span)
+            [span_85](start_span)height: 32px;[span_85](end_span)
+            [span_86](start_span)cursor: pointer;[span_86](end_span)
+            [span_87](start_span)display: flex;[span_87](end_span)
+            [span_88](start_span)align-items: center;[span_88](end_span)
+            [span_89](start_span)justify-content: center;[span_89](end_span)
+            [span_90](start_span)color: var(--icon-color);[span_90](end_span)
+            [span_91](start_span)transition: background-color 0.2s, transform 0.2s;[span_91](end_span)
         }
-        .exit-btn:hover { background-color: #d8dde1; transform: rotate(90deg); }
-        .exit-btn svg { width: 20px; height: 20px; }
+        .exit-btn:hover {
+            [span_92](start_span)background-color: #d8dde1;[span_92](end_span)
+            [span_93](start_span)transform: rotate(90deg);[span_93](end_span)
+        }
+        .exit-btn svg {
+            [span_94](start_span)width: 20px;[span_94](end_span)
+            [span_95](start_span)height: 20px;[span_95](end_span)
+        }
         
         /* --- 4. History Content Styling --- */
         .new-chat-btn {
-            display: flex; align-items: center; gap: 12px; width: 35%;
-            padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;
-            font-size: 0.9em; font-weight: 600; cursor: pointer;
-            background-color: transparent; color: var(--text-primary);
-            transition: background-color 0.2s, border-color 0.2s;
+            [span_96](start_span)display: flex;[span_96](end_span)
+            [span_97](start_span)align-items: center;[span_97](end_span)
+            [span_98](start_span)gap: 12px;[span_98](end_span)
+            [span_99](start_span)width: 35%;[span_99](end_span)
+            [span_100](start_span)padding: 12px;[span_100](end_span)
+            [span_101](start_span)border: 1px solid var(--border-color);[span_101](end_span)
+            [span_102](start_span)border-radius: 8px;[span_102](end_span)
+            [span_103](start_span)font-size: 0.9em;[span_103](end_span)
+            [span_104](start_span)font-weight: 600;[span_104](end_span)
+            [span_105](start_span)cursor: pointer;[span_105](end_span)
+            [span_106](start_span)background-color: transparent;[span_106](end_span)
+            [span_107](start_span)color: var(--text-primary);[span_107](end_span)
+            [span_108](start_span)transition: background-color 0.2s, border-color 0.2s;[span_108](end_span)
         }
-        .new-chat-btn:hover { background-color: #f1f3f5; }
-        .chat-history { margin-top: 20px; overflow-y: auto; flex-grow: 1; padding-right: 10px; }
+        .new-chat-btn:hover {
+            [span_109](start_span)background-color: #f1f3f5;[span_109](end_span)
+        }
+        .chat-history {
+            [span_110](start_span)margin-top: 20px;[span_110](end_span)
+            [span_111](start_span)overflow-y: auto;[span_111](end_span)
+            [span_112](start_span)flex-grow: 1;[span_112](end_span)
+            [span_113](start_span)padding-right: 10px;[span_113](end_span)
+        }
         /* Custom scrollbar for history */
-        .chat-history::-webkit-scrollbar { width: 6px; }
-        .chat-history::-webkit-scrollbar-track { background: transparent; }
-        .chat-history::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .chat-history::-webkit-scrollbar {
+            [span_114](start_span)width: 6px;[span_114](end_span)
+        }
+        .chat-history::-webkit-scrollbar-track {
+            [span_115](start_span)background: transparent;[span_115](end_span)
+        }
+        .chat-history::-webkit-scrollbar-thumb {
+            [span_116](start_span)background: #ccc;[span_116](end_span)
+            [span_117](start_span)border-radius: 3px;[span_117](end_span)
+        }
 
-        .history-group { margin-bottom: 20px; }
+        .history-group {
+            [span_118](start_span)margin-bottom: 20px;[span_118](end_span)
+        }
         .history-group-title {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            color: var(--text-secondary); padding: 0 8px 8px; letter-spacing: 0.5px;
+            [span_119](start_span)font-size: 0.75rem;[span_119](end_span)
+            [span_120](start_span)font-weight: 700;[span_120](end_span)
+            [span_121](start_span)text-transform: uppercase;[span_121](end_span)
+            [span_122](start_span)color: var(--text-secondary);[span_122](end_span)
+            [span_123](start_span)padding: 0 8px 8px;[span_123](end_span)
+            [span_124](start_span)letter-spacing: 0.5px;[span_124](end_span)
         }
         .chat-history-item {
-            padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.9em;
-            transition: background-color 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            [span_125](start_span)padding: 12px;[span_125](end_span)
+            [span_126](start_span)border-radius: 8px;[span_126](end_span)
+            [span_127](start_span)cursor: pointer;[span_127](end_span)
+            [span_128](start_span)font-size: 0.9em;[span_128](end_span)
+            [span_129](start_span)transition: background-color 0.2s;[span_129](end_span)
+            [span_130](start_span)white-space: nowrap;[span_130](end_span)
+            [span_131](start_span)overflow: hidden;[span_131](end_span)
+            [span_132](start_span)text-overflow: ellipsis;[span_132](end_span)
         }
-        .chat-history-item:hover { background-color: var(--user-message-bg); }
-        .chat-history-item.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+        .chat-history-item:hover {
+            [span_133](start_span)background-color: var(--user-message-bg);[span_133](end_span)
+        }
+        .chat-history-item.active {
+            [span_134](start_span)background-color: var(--primary-color);[span_134](end_span)
+            [span_135](start_span)color: white;[span_135](end_span)
+            [span_136](start_span)font-weight: 600;[span_136](end_span)
+        }
 
         /* --- 5. Floating Menu Button --- */
-        /* --- Located in section 5 of your CSS --- */
-
-.chat-message {
-    display: flex; [cite_start]/* [cite: 60] */
-    gap: 12px; /* A slightly smaller gap */
-    margin-bottom: 28px; [cite_start]/* [cite: 60] */
-    max-width: 90%; /* Prevent bubbles from taking full width */
-}
-.chat-message.animate-in {
-    animation: message-in 0.4s ease-out forwards; [cite_start]/* [cite: 61] */
-}
-
-/* Align user messages to the right */
-.chat-message.user {
-    flex-direction: row-reverse; /* Moves avatar to the right of text */
-    margin-left: auto;   /* Pushes the whole container to the right */
-}
-
-.message-content {
-    padding: 10px 16px; /* Creates the bubble shape */
-    border-radius: 20px;  /* Rounded corners for the bubble */
-    line-height: 1.6; [cite_start]/* [cite: 66] */
-    font-size: 1em; [cite_start]/* [cite: 66] */
-}
-
-/* Style AI messages (left side) */
-.chat-message.ai .message-content {
-    background-color: var(--user-message-bg); [cite_start]/* Light gray background [cite: 66] */
-    color: var(--text-primary);
-}
-
-/* Style User messages (right side) */
-.chat-message.user .message-content {
-    background-color: var(--primary-color); [cite_start]/* Blue background [cite: 65] */
-    color: white; /* White text */
-}
         .menu-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 101;
-            background-color: var(--popup-bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s ease-out;
+            [span_137](start_span)position: absolute;[span_137](end_span)
+            [span_138](start_span)top: 20px;[span_138](end_span)
+            [span_139](start_span)left: 20px;[span_139](end_span)
+            [span_140](start_span)z-index: 101;[span_140](end_span)
+            [span_141](start_span)background-color: var(--popup-bg-color);[span_141](end_span)
+            [span_142](start_span)border: 1px solid var(--border-color);[span_142](end_span)
+            [span_143](start_span)border-radius: 50%;[span_143](end_span)
+            [span_144](start_span)width: 48px;[span_144](end_span)
+            [span_145](start_span)height: 48px;[span_145](end_span)
+            [span_146](start_span)cursor: pointer;[span_146](end_span)
+            [span_147](start_span)box-shadow: 0 4px 12px var(--shadow-color);[span_147](end_span)
+            [span_148](start_span)display: flex;[span_148](end_span)
+            [span_149](start_span)align-items: center;[span_149](end_span)
+            [span_150](start_span)justify-content: center;[span_150](end_span)
+            [span_151](start_span)transition: transform 0.2s ease-out;[span_151](end_span)
         }
-        .menu-btn:hover { transform: scale(1.05); }
-        .menu-btn svg { width: 24px; height: 24px; color: var(--icon-color); }
+        .menu-btn:hover {
+            [span_152](start_span)transform: scale(1.05);[span_152](end_span)
+        }
+        .menu-btn svg {
+            [span_153](start_span)width: 24px;[span_153](end_span)
+            [span_154](start_span)height: 24px;[span_154](end_span)
+            [span_155](start_span)color: var(--icon-color);[span_155](end_span)
+        }
         
-        /* --- Other Sections (Chat Display, Input, etc.) --- */
-        .chat-display-wrapper { flex-grow: 1; overflow-y: auto; padding: 24px 8px; }
-        .chat-log-container { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+        /* --- 6. Chat Display, Input, etc. --- */
+        .chat-display-wrapper {
+            [span_156](start_span)flex-grow: 1;[span_156](end_span)
+            [span_157](start_span)overflow-y: auto;[span_157](end_span)
+            [span_158](start_span)padding: 24px 8px;[span_158](end_span)
+        }
+        .chat-log-container {
+            [span_159](start_span)max-width: 820px;[span_159](end_span)
+            [span_160](start_span)margin: 0 auto;[span_160](end_span)
+            [span_161](start_span)padding: 0 16px;[span_161](end_span)
+        }
 
         @keyframes message-in {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                [span_162](start_span)opacity: 0;[span_162](end_span)
+                [span_163](start_span)transform: translateY(20px);[span_163](end_span)
+            }
+            to {
+                [span_164](start_span)opacity: 1;[span_164](end_span)
+                [span_165](start_span)transform: translateY(0);[span_165](end_span)
+            }
         }
-        .chat-message { display: flex; gap: 16px; margin-bottom: 28px; }
-        .chat-message.animate-in { animation: message-in 0.4s ease-out forwards; }
-        
-        .avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; background-color: var(--primary-color);
+        .chat-message {
+            [span_166](start_span)display: flex;[span_166](end_span)
+            [span_167](start_span)gap: 16px;[span_167](end_span)
+            [span_168](start_span)margin-bottom: 28px;[span_168](end_span)
+            max-width: 90%;
         }
-        .avatar svg { width: 22px; height: 22px; fill: white; }
-        .chat-message.user .avatar { background-color: #6c757d; }
-        .message-content { padding-top: 8px; line-height: 1.7; font-size: 1em; }
+        .chat-message.animate-in {
+            [span_169](start_span)animation: message-in 0.4s ease-out forwards;[span_169](end_span)
+        }
         
-        #welcomeScreen { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        #welcomeScreen h1 { font-size: 2em; font-weight: 700; margin-bottom: 8px; }
-        #welcomeScreen p { color: var(--text-secondary); font-size: 1.1em; }
+        .chat-message.user {
+            [span_170](start_span)flex-direction: row-reverse;[span_170](end_span)
+            [span_171](start_span)margin-left: auto;[span_171](end_span)
+        }
 
-        .chat-input-container { padding: 16px 24px 24px; background-color: rgba(248, 249, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; /* Ensure input is above the animated text */ }
-        .input-wrapper { max-width: 820px; margin: 0 auto; display: flex; align-items: center; background-color: var(--popup-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 4px 8px 4px 16px; box-shadow: 0 4px 12px var(--shadow-color); }
-        .input-wrapper:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(13,110,253,.25); }
-        .input-wrapper textarea { flex-grow: 1; border: none; outline: none; resize: none; font-family: inherit; font-size: 1em; background: transparent; max-height: 200px; line-height: 1.6; padding: 10px 0; }
+        .avatar {
+            [span_172](start_span)width: 40px;[span_172](end_span)
+            [span_173](start_span)height: 40px;[span_173](end_span)
+            [span_174](start_span)border-radius: 50%;[span_174](end_span)
+            [span_175](start_span)display: flex;[span_175](end_span)
+            [span_176](start_span)align-items: center;[span_176](end_span)
+            [span_177](start_span)justify-content: center;[span_177](end_span)
+            [span_178](start_span)flex-shrink: 0;[span_178](end_span)
+            [span_179](start_span)background-color: var(--primary-color);[span_179](end_span)
+        }
+        .avatar svg {
+            [span_180](start_span)width: 22px;[span_180](end_span)
+            [span_181](start_span)height: 22px;[span_181](end_span)
+            [span_182](start_span)fill: white;[span_182](end_span)
+        }
+        .chat-message.ai .message-content {
+            [span_183](start_span)background-color: var(--user-message-bg);[span_183](end_span)
+            [span_184](start_span)color: var(--text-primary);[span_184](end_span)
+        }
+
+        .chat-message.user .avatar {
+            [span_185](start_span)background-color: #6c757d;[span_185](end_span)
+        }
+        .message-content {
+            [span_186](start_span)padding: 10px 16px;[span_186](end_span)
+            [span_187](start_span)line-height: 1.7;[span_187](end_span)
+            [span_188](start_span)font-size: 1em;[span_188](end_span)
+            [span_189](start_span)border-radius: 20px;[span_189](end_span)
+        }
+         .chat-message.user .message-content {
+            [span_190](start_span)background-color: var(--primary-color);[span_190](end_span)
+            [span_191](start_span)color: white;[span_191](end_span)
+        }
         
-        .send-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s; margin-left: 8px; flex-shrink: 0; }
-        .send-btn:hover { background-color: var(--primary-hover-color); }
-        .send-btn:disabled { background-color: #adb5bd; cursor: not-allowed; }
+        #welcomeScreen {
+            [span_192](start_span)text-align: center;[span_192](end_span)
+            [span_193](start_span)padding: 40px 20px;[span_193](end_span)
+            [span_194](start_span)display: flex;[span_194](end_span)
+            [span_195](start_span)flex-direction: column;[span_195](end_span)
+            [span_196](start_span)align-items: center;[span_196](end_span)
+            [span_197](start_span)justify-content: center;[span_197](end_span)
+            [span_198](start_span)height: 100%;[span_198](end_span)
+        }
+        #welcomeScreen h1 {
+            [span_199](start_span)font-size: 2em;[span_199](end_span)
+            [span_200](start_span)font-weight: 700;[span_200](end_span)
+            [span_201](start_span)margin-bottom: 8px;[span_201](end_span)
+        }
+        #welcomeScreen p {
+            [span_202](start_span)color: var(--text-secondary);[span_202](end_span)
+            [span_203](start_span)font-size: 1.1em;[span_203](end_span)
+        }
+
+        .chat-input-container {
+            [span_204](start_span)padding: 16px 24px 24px;[span_204](end_span)
+            [span_205](start_span)background-color: rgba(248, 249, 250, 0.8);[span_205](end_span)
+            [span_206](start_span)backdrop-filter: blur(10px);[span_206](end_span)
+            [span_207](start_span)z-index: 10;[span_207](end_span)
+        }
+        .input-wrapper {
+            [span_208](start_span)max-width: 820px;[span_208](end_span)
+            [span_209](start_span)margin: 0 auto;[span_209](end_span)
+            [span_210](start_span)display: flex;[span_210](end_span)
+            [span_211](start_span)align-items: center;[span_211](end_span)
+            [span_212](start_span)background-color: var(--popup-bg-color);[span_212](end_span)
+            [span_213](start_span)border: 1px solid var(--border-color);[span_213](end_span)
+            [span_214](start_span)border-radius: 12px;[span_214](end_span)
+            [span_215](start_span)padding: 4px 8px 4px 16px;[span_215](end_span)
+            [span_216](start_span)box-shadow: 0 4px 12px var(--shadow-color);[span_216](end_span)
+        }
+        .input-wrapper:focus-within {
+            [span_217](start_span)border-color: var(--primary-color);[span_217](end_span)
+            [span_218](start_span)box-shadow: 0 0 0 3px rgba(13,110,253,.25);[span_218](end_span)
+        }
+        .input-wrapper textarea {
+            [span_219](start_span)flex-grow: 1;[span_219](end_span)
+            [span_220](start_span)border: none;[span_220](end_span)
+            [span_221](start_span)outline: none;[span_221](end_span)
+            [span_222](start_span)resize: none;[span_222](end_span)
+            [span_223](start_span)font-family: inherit;[span_223](end_span)
+            [span_224](start_span)font-size: 1em;[span_224](end_span)
+            [span_225](start_span)background: transparent;[span_225](end_span)
+            [span_226](start_span)max-height: 200px;[span_226](end_span)
+            [span_227](start_span)line-height: 1.6;[span_227](end_span)
+            [span_228](start_span)padding: 10px 0;[span_228](end_span)
+        }
+        
+        .send-btn {
+            [span_229](start_span)width: 40px;[span_229](end_span)
+            [span_230](start_span)height: 40px;[span_230](end_span)
+            [span_231](start_span)border-radius: 8px;[span_231](end_span)
+            [span_232](start_span)border: none;[span_232](end_span)
+            [span_233](start_span)background-color: var(--primary-color);[span_233](end_span)
+            [span_234](start_span)color: white;[span_234](end_span)
+            [span_235](start_span)display: flex;[span_235](end_span)
+            [span_236](start_span)align-items: center;[span_236](end_span)
+            [span_237](start_span)justify-content: center;[span_237](end_span)
+            [span_238](start_span)cursor: pointer;[span_238](end_span)
+            [span_239](start_span)transition: background-color 0.2s;[span_239](end_span)
+            [span_240](start_span)margin-left: 8px;[span_240](end_span)
+            [span_241](start_span)flex-shrink: 0;[span_241](end_span)
+        }
+        .send-btn:hover {
+            [span_242](start_span)background-color: var(--primary-hover-color);[span_242](end_span)
+        }
+        .send-btn:disabled {
+            [span_243](start_span)background-color: #adb5bd;[span_243](end_span)
+            [span_244](start_span)cursor: not-allowed;[span_244](end_span)
+        }
 
     </style>
 </head>
@@ -276,12 +410,12 @@
         <div class="popup-overlay" id="historyOverlay">
             <div class="history-popup" id="historyPopup">
                 <button class="exit-btn" id="exitHistoryBtn" aria-label="Close History">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    [span_245](start_span)<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>[span_245](end_span)
                 </button>
                 <button class="new-chat-btn" id="newChatBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     <span>New Chat</span>
-                </button>
+                [span_246](start_span)</button>[span_246](end_span)
                 <div class="chat-history" id="chatHistory"></div>
             </div>
         </div>
@@ -289,7 +423,7 @@
         <main class="main-chat-area">
             <button class="menu-btn" id="menuBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-            </button>
+            [span_247](start_span)</button>[span_247](end_span)
 
             <div class="animated-greeting">
                 হ্যালো, Sukumar
@@ -297,18 +431,18 @@
 
             <div class="chat-display-wrapper" id="chatDisplayWrapper">
                 <div class="chat-log-container" id="chatLogContainer">
-                    <div id="welcomeScreen">
+                    [span_248](start_span)<div id="welcomeScreen">[span_248](end_span)
                         <h1>Welcome!</h1>
                         <p>Start a new chat or open history to continue.</p>
                     </div>
                 </div>
-            </div>
+            [span_249](start_span)</div>[span_249](end_span)
 
             <div class="chat-input-container">
                 <div class="input-wrapper">
                     <textarea id="userInput" placeholder="Ask a question..." rows="1"></textarea>
                     <button class="send-btn" id="sendMessageBtn" aria-label="Send Message" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                        [span_250](start_span)<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>[span_250](end_span)
                     </button>
                 </div>
             </div>
@@ -318,174 +452,186 @@
 
     <script>
         // --- 1. DOM & Config ---
-        const getEl = (id) => document.getElementById(id);
-        const historyOverlay = getEl('historyOverlay'), historyPopup = getEl('historyPopup');
-        const exitHistoryBtn = getEl('exitHistoryBtn'), menuBtn = getEl('menuBtn'), newChatBtn = getEl('newChatBtn');
-        const chatHistoryContainer = getEl('chatHistory');
-        const chatDisplayWrapper = getEl('chatDisplayWrapper'), chatLogContainer = getEl('chatLogContainer');
-        const welcomeScreen = getEl('welcomeScreen'), userInput = getEl('userInput'), sendMessageBtn = getEl('sendMessageBtn');
+        [span_251](start_span)const getEl = (id) => document.getElementById(id);[span_251](end_span)
+        [span_252](start_span)const historyOverlay = getEl('historyOverlay'), historyPopup = getEl('historyPopup');[span_252](end_span)
+        [span_253](start_span)const exitHistoryBtn = getEl('exitHistoryBtn'), menuBtn = getEl('menuBtn'), newChatBtn = getEl('newChatBtn');[span_253](end_span)
+        [span_254](start_span)const chatHistoryContainer = getEl('chatHistory');[span_254](end_span)
+        [span_255](start_span)const chatDisplayWrapper = getEl('chatDisplayWrapper'), chatLogContainer = getEl('chatLogContainer');[span_255](end_span)
+        [span_256](start_span)const welcomeScreen = getEl('welcomeScreen'), userInput = getEl('userInput'), sendMessageBtn = getEl('sendMessageBtn');[span_256](end_span)
 
-        const GEMINI_API_KEY = 'AIzaSyAAPMQVISumB3tEnN4G9a4tKySDYIj_G4E'; // ⚠️ IMPORTANT: Replace this!
-        const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const API_ENDPOINT = 'https://learn-english-spoken.onrender.com/api/learn';
         
         // --- 2. State Management ---
-        let state = { conversations: {}, activeConversationId: null };
-        const saveState = () => localStorage.setItem('aiTutorState_v4', JSON.stringify(state));
+        [span_257](start_span)let state = { conversations: {}, activeConversationId: null };[span_257](end_span)
+        [span_258](start_span)const saveState = () => localStorage.setItem('aiTutorState_v4', JSON.stringify(state));[span_258](end_span)
         const loadState = () => {
-            const saved = localStorage.getItem('aiTutorState_v4');
-            if (saved) state = JSON.parse(saved);
+            [span_259](start_span)const saved = localStorage.getItem('aiTutorState_v4');[span_259](end_span)
+            [span_260](start_span)if (saved) state = JSON.parse(saved);[span_260](end_span)
         };
         
         // --- 3. UI Rendering & Popup ---
-        const openHistoryPopup = () => historyOverlay.classList.add('open');
-        const closeHistoryPopup = () => historyOverlay.classList.remove('open');
+        [span_261](start_span)const openHistoryPopup = () => historyOverlay.classList.add('open');[span_261](end_span)
+        [span_262](start_span)const closeHistoryPopup = () => historyOverlay.classList.remove('open');[span_262](end_span)
 
-        const groupConversationsByDate = () => { /* ... (logic unchanged) ... */
-            const groups = { Today: [], Yesterday: [], "Previous 7 Days": [], Older: [] };
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-            const lastWeek = new Date(today); lastWeek.setDate(lastWeek.getDate() - 7);
+        const groupConversationsByDate = () => {
+            [span_263](start_span)const groups = { Today: [], Yesterday: [], "Previous 7 Days": [], Older: [] };[span_263](end_span)
+            [span_264](start_span)const now = new Date();[span_264](end_span)
+            [span_265](start_span)const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());[span_265](end_span)
+            [span_266](start_span)const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);[span_266](end_span)
+            [span_267](start_span)const lastWeek = new Date(today); lastWeek.setDate(lastWeek.getDate() - 7);[span_267](end_span)
             Object.values(state.conversations).sort((a,b) => b.createdAt - a.createdAt).forEach(convo => {
                 const convoDate = new Date(convo.createdAt);
                 if (convoDate >= today) groups.Today.push(convo);
                 else if (convoDate >= yesterday) groups.Yesterday.push(convo);
                 else if (convoDate >= lastWeek) groups["Previous 7 Days"].push(convo);
-                else groups.Older.push(convo);
+                [span_268](start_span)else groups.Older.push(convo);[span_268](end_span)
             });
-            return groups;
+            [span_269](start_span)return groups;[span_269](end_span)
         };
         
         const renderHistory = () => {
-            const groups = groupConversationsByDate();
-            chatHistoryContainer.innerHTML = '';
+            [span_270](start_span)const groups = groupConversationsByDate();[span_270](end_span)
+            [span_271](start_span)chatHistoryContainer.innerHTML = '';[span_271](end_span)
             for (const groupName in groups) {
                 if (groups[groupName].length > 0) {
-                    const groupDiv = document.createElement('div');
-                    groupDiv.className = 'history-group';
-                    groupDiv.innerHTML = `<h3 class="history-group-title">${groupName}</h3>`;
+                    [span_272](start_span)const groupDiv = document.createElement('div');[span_272](end_span)
+                    [span_273](start_span)groupDiv.className = 'history-group';[span_273](end_span)
+                    [span_274](start_span)groupDiv.innerHTML = `<h3 class="history-group-title">${groupName}</h3>`;[span_274](end_span)
                     groups[groupName].forEach(convo => {
                         const item = document.createElement('div');
                         item.className = 'chat-history-item';
                         item.dataset.id = convo.id;
-                        if (convo.id === state.activeConversationId) item.classList.add('active');
+                        [span_275](start_span)if (convo.id === state.activeConversationId) item.classList.add('active');[span_275](end_span)
                         item.textContent = convo.title;
                         item.addEventListener('click', () => setActiveConversation(convo.id));
                         groupDiv.appendChild(item);
                     });
-                    chatHistoryContainer.appendChild(groupDiv);
+                    [span_276](start_span)chatHistoryContainer.appendChild(groupDiv);[span_276](end_span)
                 }
             }
-        };
+        [span_277](start_span)};[span_277](end_span)
         
         const renderChatLog = () => {
-            chatLogContainer.innerHTML = '';
-            if (!state.activeConversationId || !state.conversations[state.activeConversationId]) {
-                welcomeScreen.style.display = 'flex';
-                return;
+            [span_278](start_span)chatLogContainer.innerHTML = '';[span_278](end_span)
+            [span_279](start_span)if (!state.activeConversationId || !state.conversations[state.activeConversationId]) {[span_279](end_span)
+                [span_280](start_span)welcomeScreen.style.display = 'flex';[span_280](end_span)
+                [span_281](start_span)return;[span_281](end_span)
             }
-            welcomeScreen.style.display = 'none';
-            const convo = state.conversations[state.activeConversationId];
-            convo.messages.forEach(msg => appendMessage(msg.sender, msg.text, false, false));
+            [span_282](start_span)welcomeScreen.style.display = 'none';[span_282](end_span)
+            [span_283](start_span)const convo = state.conversations[state.activeConversationId];[span_283](end_span)
+            [span_284](start_span)convo.messages.forEach(msg => appendMessage(msg.sender, msg.text, false, false));[span_284](end_span)
             scrollToBottom();
         };
 
         // --- 4. CRUD & Core Logic ---
         const setActiveConversation = (id) => {
-            state.activeConversationId = id;
-            saveState();
+            [span_285](start_span)state.activeConversationId = id;[span_285](end_span)
+            [span_286](start_span)saveState();[span_286](end_span)
             renderChatLog();
-            renderHistory(); // To update active state
+            renderHistory(); 
             closeHistoryPopup();
-        };
+        [span_287](start_span)};[span_287](end_span)
 
-const createNewChat = () => {
-    const newId = Date.now().toString();
-    state.conversations[newId] = {
-        id: newId,
-        title: "New Conversation",
-        messages: [],
-        createdAt: Date.now()
-    };
-    
-    setActiveConversation(newId);
+        const createNewChat = () => {
+            [span_288](start_span)const newId = Date.now().toString();[span_288](end_span)
+            [span_289](start_span)state.conversations[newId] = {[span_289](end_span)
+                id: newId,
+                title: "New Conversation",
+                messages: [],
+                createdAt: Date.now()
+            };
+            [span_290](start_span)setActiveConversation(newId);[span_290](end_span)
 
-    // Show animated greeting after creating a new chat
-    const greeting = document.querySelector('.animated-greeting');
-    if (greeting) {
-        greeting.style.display = 'block';
-    
-};
-            // No need to close popup here as setActiveConversation already does
+            [span_291](start_span)const greeting = document.querySelector('.animated-greeting');[span_291](end_span)
+            [span_292](start_span)if (greeting) {[span_292](end_span)
+                [span_293](start_span)greeting.style.display = 'block';[span_293](end_span)
+            }
         };
         
         const appendMessage = (sender, text, shouldSave = true, shouldAnimate = true) => {    
-    document.querySelector('.animated-greeting').style.display = 'none';
-
-            if (shouldSave) {
-                 if (!state.activeConversationId) createNewChat();
-                 const convo = state.conversations[state.activeConversationId];
-                 convo.messages.push({ sender, text });
-                 if (convo.messages.length === 1 && sender === 'user') {
-                     convo.title = text.substring(0, 35) + (text.length > 35 ? '...' : '');
-                 }
-                 saveState();
-                 renderHistory();
+            [span_294](start_span)document.querySelector('.animated-greeting').style.display = 'none';[span_294](end_span)
+            [span_295](start_span)if (shouldSave) {[span_295](end_span)
+                [span_296](start_span)if (!state.activeConversationId) createNewChat();[span_296](end_span)
+                [span_297](start_span)const convo = state.conversations[state.activeConversationId];[span_297](end_span)
+                convo.messages.push({ sender, text });
+                if (convo.messages.length === 1 && sender === 'user') {
+                     [span_298](start_span)convo.title = text.substring(0, 35) + (text.length > 35 ? '...' : '');[span_298](end_span)
+                }
+                [span_299](start_span)saveState();[span_299](end_span)
+                [span_300](start_span)renderHistory();[span_300](end_span)
             }
-            if (welcomeScreen.style.display !== 'none') welcomeScreen.style.display = 'none';
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `chat-message ${sender}`;
-            if (shouldAnimate) msgDiv.classList.add('animate-in');
+            [span_301](start_span)if (welcomeScreen.style.display !== 'none') welcomeScreen.style.display = 'none';[span_301](end_span)
+            [span_302](start_span)const msgDiv = document.createElement('div');[span_302](end_span)
+            [span_303](start_span)msgDiv.className = `chat-message ${sender}`;[span_303](end_span)
+            [span_304](start_span)if (shouldAnimate) msgDiv.classList.add('animate-in');[span_304](end_span)
             msgDiv.innerHTML = `
-                <div class="avatar">${sender === 'user' ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`}</div>
+                [span_305](start_span)<div class="avatar">${sender === 'user' ?[span_305](end_span)
+                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`}</div>
                 <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
-            `;
-            chatLogContainer.appendChild(msgDiv);
+            [span_306](start_span)`;[span_306](end_span)
+            [span_307](start_span)chatLogContainer.appendChild(msgDiv);[span_307](end_span)
             scrollToBottom();
         };
 
         async function handleSendMessage() {
-            const message = userInput.value.trim();
-            if (!message) return;
-            if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') { alert("⚠️ Please set your Gemini API key in the script."); return; }
+            [span_308](start_span)const message = userInput.value.trim();[span_308](end_span)
+            [span_309](start_span)if (!message) return;[span_309](end_span)
             
-            appendMessage('user', message);
-            userInput.value = ''; userInput.style.height = 'auto'; sendMessageBtn.disabled = true;
+            [span_310](start_span)appendMessage('user', message);[span_310](end_span)
+            [span_311](start_span)userInput.value = '';[span_311](end_span)
+            [span_312](start_span)userInput.style.height = 'auto';[span_312](end_span)
+            [span_313](start_span)sendMessageBtn.disabled = true;[span_313](end_span)
             
             try {
-                const response = await fetch(GEMINI_API_ENDPOINT, {
+                const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: message }] }] })
+                    body: JSON.stringify({ message: message }) 
                 });
-                if (!response.ok) throw new Error((await response.json()).error.message);
+                
+                [span_314](start_span)if (!response.ok) {[span_314](end_span)
+                    const errorData = await response.json();
+                    [span_315](start_span)throw new Error(errorData.message || `Request failed with status ${response.status}`);[span_315](end_span)
+                }
+
                 const data = await response.json();
-                const aiResponseText = data.candidates[0]?.content?.parts[0]?.text || "Sorry, I couldn't process that.";
+                const aiResponseText = data.response || [span_316](start_span)"Sorry, I couldn't get a response.";[span_316](end_span)
                 appendMessage('ai', aiResponseText);
-            } catch (error) { appendMessage('ai', `Sorry, an error occurred: ${error.message}`); }
+            } catch (error) {
+                [span_317](start_span)appendMessage('ai', `Sorry, an error occurred: ${error.message}`);[span_317](end_span)
+            }
         }
         
         // --- 5. Event Listeners & Initialization ---
-        const scrollToBottom = () => chatDisplayWrapper.scrollTop = chatDisplayWrapper.scrollHeight;
-        menuBtn.addEventListener('click', openHistoryPopup);
-        exitHistoryBtn.addEventListener('click', closeHistoryPopup);
+        [span_318](start_span)const scrollToBottom = () => chatDisplayWrapper.scrollTop = chatDisplayWrapper.scrollHeight;[span_318](end_span)
+        [span_319](start_span)menuBtn.addEventListener('click', openHistoryPopup);[span_319](end_span)
+        [span_320](start_span)exitHistoryBtn.addEventListener('click', closeHistoryPopup);[span_320](end_span)
         historyOverlay.addEventListener('click', (e) => {
-            if (e.target === historyOverlay) closeHistoryPopup();
+            [span_321](start_span)if (e.target === historyOverlay) closeHistoryPopup();[span_321](end_span)
         });
-        newChatBtn.addEventListener('click', createNewChat);
-        sendMessageBtn.addEventListener('click', handleSendMessage);
-        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
-        userInput.addEventListener('input', () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; sendMessageBtn.disabled = userInput.value.trim().length === 0; });
+        [span_322](start_span)newChatBtn.addEventListener('click', createNewChat);[span_322](end_span)
+        [span_323](start_span)sendMessageBtn.addEventListener('click', handleSendMessage);[span_323](end_span)
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        [span_324](start_span)});[span_324](end_span)
+        userInput.addEventListener('input', () => {
+            [span_325](start_span)userInput.style.height = 'auto';[span_325](end_span)
+            [span_326](start_span)userInput.style.height = `${userInput.scrollHeight}px`;[span_326](end_span)
+            [span_327](start_span)sendMessageBtn.disabled = userInput.value.trim().length === 0;[span_327](end_span)
+        });
         
         // --- Initial Load ---
-        loadState();
-        if (Object.keys(state.conversations).length > 0 && (!state.activeConversationId || !state.conversations[state.activeConversationId])) {
-            state.activeConversationId = Object.keys(state.conversations).sort((a,b) => b-a)[0];
+        [span_328](start_span)loadState();[span_328](end_span)
+        [span_329](start_span)if (Object.keys(state.conversations).length > 0 && (!state.activeConversationId || !state.conversations[state.activeConversationId])) {[span_329](end_span)
+            [span_330](start_span)state.activeConversationId = Object.keys(state.conversations).sort((a,b) => b-a)[0];[span_330](end_span)
         }
-        renderHistory();
-        renderChatLog();
-        userInput.style.height = 'auto'; sendMessageBtn.disabled = true;
+        [span_331](start_span)renderHistory();[span_331](end_span)
+        [span_332](start_span)renderChatLog();[span_332](end_span)
+        [span_333](start_span)userInput.style.height = 'auto';[span_333](end_span)
+        [span_334](start_span)sendMessageBtn.disabled = true;[span_334](end_span)
     </script>
 </body>
 </html>
