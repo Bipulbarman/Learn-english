@@ -3,382 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn Chat</title>
-    <link rel="stylesheet" href="../style.css">
+    <title>AI Tutor - Popup History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Specific styles for Learn Chat */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%; /* Take full height of iframe */
-            background-color: var(--surface-color);
-            box-sizing: border-box;
+        /* --- 1. Global Styles & Theme --- */
+        :root {
+            --background-color: #f8f9fa;
+            --popup-bg-color: #ffffff;
+            --chat-surface-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --primary-hover-color: #0b5ed7;
+            --user-message-bg: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --icon-color: #6c757d;
+            --cut-corner-size: 20px;
         }
 
-        .chat-display {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            border-bottom: 1px solid var(--border-color);
-            scroll-behavior: smooth;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .chat-message {
-            margin-bottom: 15px;
-            padding: 12px 18px;
-            border-radius: 20px;
-            max-width: 85%;
-            word-wrap: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            line-height: 1.5;
-            font-size: 0.95em;
-        }
-
-        .chat-message.user {
-            background-color: var(--chat-user-bg);
-            margin-left: auto;
-            text-align: right;
-            border-bottom-right-radius: 5px; /* More subtle rounded corner */
-            position: relative;
-        }
-
-        .chat-message.ai {
-            background-color: var(--chat-ai-bg);
-            margin-right: auto;
-            border-bottom-left-radius: 5px; /* More subtle rounded corner */
-        }
-
-        .chat-input-area {
-            display: flex;
-            padding: 15px;
-            gap: 10px;
-            align-items: flex-end; /* Align textarea with send button */
-            border-top: 1px solid var(--border-color);
-        }
-
-        .chat-input-area textarea {
-            flex-grow: 1;
-            margin-bottom: 0;
-            max-height: 120px;
-            min-height: 40px;
-            box-sizing: border-box;
-            border-radius: 20px; /* More rounded input */
-            padding: 10px 15px;
-            line-height: 1.4;
-        }
-
-        .chat-input-area .btn {
-            padding: 10px 20px;
-            height: 40px; /* Match textarea min-height */
-            border-radius: 20px; /* Match textarea border-radius */
-            box-shadow: none; /* Remove shadow for a cleaner look */
-        }
-        .chat-input-area .btn:hover {
-            transform: none;
-        }
-
-        .grammar-feedback, .word-meaning-popup {
-            position: absolute;
-            background-color: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            z-index: 100;
-            white-space: pre-wrap;
-            max-width: 250px;
-            box-sizing: border-box;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            bottom: calc(100% + 8px); /* Position above the message */
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: normal; /* Allow text to wrap */
-        }
-        .grammar-feedback.active, .word-meaning-popup.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .grammar-error {
-            text-decoration: underline wavy var(--secondary-color); /* Red underline */
-            cursor: help;
-            font-weight: 500;
-        }
-        .meaning-word {
-            text-decoration: underline dotted var(--primary-color); /* Blue dotted underline */
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .suggestion-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 10px 20px;
-            border-top: 1px solid var(--border-color);
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--background-color);
-            justify-content: center;
+            color: var(--text-primary);
         }
 
-        .suggestion-buttons .btn {
-            padding: 8px 15px;
-            font-size: 0.85em;
-            background-color: #e9ecef;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            box-shadow: none;
-        }
-        .suggestion-buttons .btn:hover {
-            background-color: #dee2e6;
-            transform: none;
-        }
-        .suggestion-buttons .btn:active {
-            transform: none;
-        }
-
-        /* Adjustments for page-content to fit chat layout */
-        .page-content {
-            padding: 0; /* Remove padding from .page-content for chat */
+        /* --- 2. Main App Layout --- */
+        .chat-app-container { display: flex; height: 100vh; position: relative; }
+        .main-chat-area {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             height: 100%;
+            position: relative;
+            /* Added for the animated text positioning */
+            overflow: hidden; /* To contain the animated text if it moves out of bounds */
         }
-        .page-content h2 {
-            padding: 20px 0;
-            margin-bottom: 0;
-            border-bottom: 1px solid var(--border-color);
+
+        /* --- Animated Text Styles --- */
+        .animated-greeting {
+            position: absolute;
+            top: 50%; /* Adjust as needed */
+            left: 50%; /* Adjust as needed */
+            transform: translate(-50%, -50%); /* Center the element */
+            font-size: 2.5em; /* Adjust font size as needed */
+            font-weight: 600;
+            color: #4285F4; /* Google Blue color, similar to the image */
+            opacity: 0; /* Start hidden */
+            animation: fadeInScale 1.5s ease-out forwards; /* Animation properties */
+            white-space: nowrap; /* Prevent text wrapping */
+            z-index: 1; /* Ensure it's above other elements if needed, but below the input */
+            text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for better visibility */
         }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -40%) scale(0.8);
+            }
+            70% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        /* End Animated Text Styles */
+
+
+        /* --- 3. History Popup Section --- */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-popup {
+            background-color: var(--popup-bg-color);
+            width: 90%;
+            max-width: 420px;
+            height: 85vh;
+            max-height: 700px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* Cut Corners Effect */
+            clip-path: polygon(
+                var(--cut-corner-size) 10,
+                calc(100% - var(--cut-corner-size)) 10,
+                100% var(--cut-corner-size),
+                100% calc(100% - var(--cut-corner-size)),
+                calc(100% - var(--cut-corner-size)) 100%,
+                var(--cut-corner-size) 100%,
+                10 calc(100% - var(--cut-corner-size)),
+                10 var(--cut-corner-size)
+            );
+            /* Animation */
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .popup-overlay.open .history-popup {
+            transform: scale(1);
+        }
+
+        .exit-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--user-message-bg);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--icon-color);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .exit-btn:hover { background-color: #d8dde1; transform: rotate(90deg); }
+        .exit-btn svg { width: 20px; height: 20px; }
+        
+        /* --- 4. History Content Styling --- */
+        .new-chat-btn {
+            display: flex; align-items: center; gap: 12px; width: 35%;
+            padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;
+            font-size: 0.9em; font-weight: 600; cursor: pointer;
+            background-color: transparent; color: var(--text-primary);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .new-chat-btn:hover { background-color: #f1f3f5; }
+        .chat-history { margin-top: 20px; overflow-y: auto; flex-grow: 1; padding-right: 10px; }
+        /* Custom scrollbar for history */
+        .chat-history::-webkit-scrollbar { width: 6px; }
+        .chat-history::-webkit-scrollbar-track { background: transparent; }
+        .chat-history::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        .history-group { margin-bottom: 20px; }
+        .history-group-title {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            color: var(--text-secondary); padding: 0 8px 8px; letter-spacing: 0.5px;
+        }
+        .chat-history-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.9em;
+            transition: background-color 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .chat-history-item:hover { background-color: var(--user-message-bg); }
+        .chat-history-item.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+
+        /* --- 5. Floating Menu Button --- */
+        /* --- Located in section 5 of your CSS --- */
+
+.chat-message {
+    display: flex; [cite_start]/* [cite: 60] */
+    gap: 12px; /* A slightly smaller gap */
+    margin-bottom: 28px; [cite_start]/* [cite: 60] */
+    max-width: 90%; /* Prevent bubbles from taking full width */
+}
+.chat-message.animate-in {
+    animation: message-in 0.4s ease-out forwards; [cite_start]/* [cite: 61] */
+}
+
+/* Align user messages to the right */
+.chat-message.user {
+    flex-direction: row-reverse; /* Moves avatar to the right of text */
+    margin-left: auto;   /* Pushes the whole container to the right */
+}
+
+.message-content {
+    padding: 10px 16px; /* Creates the bubble shape */
+    border-radius: 20px;  /* Rounded corners for the bubble */
+    line-height: 1.6; [cite_start]/* [cite: 66] */
+    font-size: 1em; [cite_start]/* [cite: 66] */
+}
+
+/* Style AI messages (left side) */
+.chat-message.ai .message-content {
+    background-color: var(--user-message-bg); [cite_start]/* Light gray background [cite: 66] */
+    color: var(--text-primary);
+}
+
+/* Style User messages (right side) */
+.chat-message.user .message-content {
+    background-color: var(--primary-color); [cite_start]/* Blue background [cite: 65] */
+    color: white; /* White text */
+}
+        .menu-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background-color: var(--popup-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease-out;
+        }
+        .menu-btn:hover { transform: scale(1.05); }
+        .menu-btn svg { width: 24px; height: 24px; color: var(--icon-color); }
+        
+        /* --- Other Sections (Chat Display, Input, etc.) --- */
+        .chat-display-wrapper { flex-grow: 1; overflow-y: auto; padding: 24px 8px; }
+        .chat-log-container { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+
+        @keyframes message-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-message { display: flex; gap: 16px; margin-bottom: 28px; }
+        .chat-message.animate-in { animation: message-in 0.4s ease-out forwards; }
+        
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; background-color: var(--primary-color);
+        }
+        .avatar svg { width: 22px; height: 22px; fill: white; }
+        .chat-message.user .avatar { background-color: #6c757d; }
+        .message-content { padding-top: 8px; line-height: 1.7; font-size: 1em; }
+        
+        #welcomeScreen { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        #welcomeScreen h1 { font-size: 2em; font-weight: 700; margin-bottom: 8px; }
+        #welcomeScreen p { color: var(--text-secondary); font-size: 1.1em; }
+
+        .chat-input-container { padding: 16px 24px 24px; background-color: rgba(248, 249, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; /* Ensure input is above the animated text */ }
+        .input-wrapper { max-width: 820px; margin: 0 auto; display: flex; align-items: center; background-color: var(--popup-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 4px 8px 4px 16px; box-shadow: 0 4px 12px var(--shadow-color); }
+        .input-wrapper:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(13,110,253,.25); }
+        .input-wrapper textarea { flex-grow: 1; border: none; outline: none; resize: none; font-family: inherit; font-size: 1em; background: transparent; max-height: 200px; line-height: 1.6; padding: 10px 0; }
+        
+        .send-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s; margin-left: 8px; flex-shrink: 0; }
+        .send-btn:hover { background-color: var(--primary-hover-color); }
+        .send-btn:disabled { background-color: #adb5bd; cursor: not-allowed; }
+
     </style>
 </head>
 <body>
-    <div class="page-content">
-        <h2>💬 Learn Chat with AI Tutor</h2>
 
-        <div class="chat-container">
-            <div class="chat-display" id="chatDisplay">
-                <div class="chat-message ai">Hello! I'm your AI English tutor. How can I help you today?</div>
+    <div class="chat-app-container">
+        <div class="popup-overlay" id="historyOverlay">
+            <div class="history-popup" id="historyPopup">
+                <button class="exit-btn" id="exitHistoryBtn" aria-label="Close History">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    <span>New Chat</span>
+                </button>
+                <div class="chat-history" id="chatHistory"></div>
             </div>
-            <div class="suggestion-buttons" id="suggestionButtons">
-                <!-- Suggestions will be populated here by JavaScript -->
-            </div>
-            <div class="chat-input-area">
-                <textarea id="userInput" placeholder="Type your message here..."></textarea>
-                <button class="btn" id="sendMessageBtn">Send</button>
-            </div>
-             <div class="loading-spinner" id="chatLoadingSpinner"></div>
         </div>
+
+        <main class="main-chat-area">
+            <button class="menu-btn" id="menuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+            </button>
+
+            <div class="animated-greeting">
+                হ্যালো, Sukumar
+            </div>
+
+            <div class="chat-display-wrapper" id="chatDisplayWrapper">
+                <div class="chat-log-container" id="chatLogContainer">
+                    <div id="welcomeScreen">
+                        <h1>Welcome!</h1>
+                        <p>Start a new chat or open history to continue.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea id="userInput" placeholder="Ask a question..." rows="1"></textarea>
+                    <button class="send-btn" id="sendMessageBtn" aria-label="Send Message" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
     </div>
 
     <script>
-        // Frontend JavaScript for Learn Chat
-        const chatDisplay = document.getElementById('chatDisplay');
-        const userInput = document.getElementById('userInput');
-        const sendMessageBtn = document.getElementById('sendMessageBtn');
-        const suggestionButtons = document.getElementById('suggestionButtons');
-        const chatLoadingSpinner = document.getElementById('chatLoadingSpinner');
+        // --- 1. DOM & Config ---
+        const getEl = (id) => document.getElementById(id);
+        const historyOverlay = getEl('historyOverlay'), historyPopup = getEl('historyPopup');
+        const exitHistoryBtn = getEl('exitHistoryBtn'), menuBtn = getEl('menuBtn'), newChatBtn = getEl('newChatBtn');
+        const chatHistoryContainer = getEl('chatHistory');
+        const chatDisplayWrapper = getEl('chatDisplayWrapper'), chatLogContainer = getEl('chatLogContainer');
+        const welcomeScreen = getEl('welcomeScreen'), userInput = getEl('userInput'), sendMessageBtn = getEl('sendMessageBtn');
 
-        // --- Helper function to append messages ---
-        function appendMessage(sender, text, grammarFeedback = null, wordMeanings = null) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('chat-message', sender);
+        const GEMINI_API_KEY = 'AIzaSyAAPMQVISumB3tEnN4G9a4tKySDYIj_G4E'; // ⚠️ IMPORTANT: Replace this!
+        const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+        
+        // --- 2. State Management ---
+        let state = { conversations: {}, activeConversationId: null };
+        const saveState = () => localStorage.setItem('aiTutorState_v4', JSON.stringify(state));
+        const loadState = () => {
+            const saved = localStorage.getItem('aiTutorState_v4');
+            if (saved) state = JSON.parse(saved);
+        };
+        
+        // --- 3. UI Rendering & Popup ---
+        const openHistoryPopup = () => historyOverlay.classList.add('open');
+        const closeHistoryPopup = () => historyOverlay.classList.remove('open');
 
-            let displayHtml = text;
-            if (sender === 'user' && grammarFeedback && grammarFeedback.corrections && grammarFeedback.corrections.length > 0) {
-                displayHtml = highlightGrammarErrors(text, grammarFeedback.corrections);
+        const groupConversationsByDate = () => { /* ... (logic unchanged) ... */
+            const groups = { Today: [], Yesterday: [], "Previous 7 Days": [], Older: [] };
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+            const lastWeek = new Date(today); lastWeek.setDate(lastWeek.getDate() - 7);
+            Object.values(state.conversations).sort((a,b) => b.createdAt - a.createdAt).forEach(convo => {
+                const convoDate = new Date(convo.createdAt);
+                if (convoDate >= today) groups.Today.push(convo);
+                else if (convoDate >= yesterday) groups.Yesterday.push(convo);
+                else if (convoDate >= lastWeek) groups["Previous 7 Days"].push(convo);
+                else groups.Older.push(convo);
+            });
+            return groups;
+        };
+        
+        const renderHistory = () => {
+            const groups = groupConversationsByDate();
+            chatHistoryContainer.innerHTML = '';
+            for (const groupName in groups) {
+                if (groups[groupName].length > 0) {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'history-group';
+                    groupDiv.innerHTML = `<h3 class="history-group-title">${groupName}</h3>`;
+                    groups[groupName].forEach(convo => {
+                        const item = document.createElement('div');
+                        item.className = 'chat-history-item';
+                        item.dataset.id = convo.id;
+                        if (convo.id === state.activeConversationId) item.classList.add('active');
+                        item.textContent = convo.title;
+                        item.addEventListener('click', () => setActiveConversation(convo.id));
+                        groupDiv.appendChild(item);
+                    });
+                    chatHistoryContainer.appendChild(groupDiv);
+                }
             }
-            messageDiv.innerHTML = displayHtml;
-
-            chatDisplay.appendChild(messageDiv);
-            chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
-
-            if (sender === 'user') {
-                if (grammarFeedback && grammarFeedback.corrections && grammarFeedback.corrections.length > 0) {
-                    attachGrammarHoverListeners(messageDiv, grammarFeedback.corrections);
-                }
-                if (wordMeanings && Object.keys(wordMeanings).length > 0) {
-                    attachWordMeaningListeners(messageDiv, wordMeanings);
-                }
+        };
+        
+        const renderChatLog = () => {
+            chatLogContainer.innerHTML = '';
+            if (!state.activeConversationId || !state.conversations[state.activeConversationId]) {
+                welcomeScreen.style.display = 'flex';
+                return;
             }
-        }
+            welcomeScreen.style.display = 'none';
+            const convo = state.conversations[state.activeConversationId];
+            convo.messages.forEach(msg => appendMessage(msg.sender, msg.text, false, false));
+            scrollToBottom();
+        };
 
-        // --- Grammar Error Highlighting and Tooltip ---
-        function highlightGrammarErrors(text, corrections) {
-            let html = text;
-            // Sort corrections by start index descending to avoid issues with string manipulation
-            corrections.sort((a, b) => b.start_index - a.start_index).forEach(correction => {
-                const original = text.substring(correction.start_index, correction.end_index);
-                const replacement = `<span class="grammar-error" data-feedback="${correction.feedback_text.replace(/"/g, '&quot;')}" data-original="${original}">${original}</span>`;
-                html = html.substring(0, correction.start_index) + replacement + html.substring(correction.end_index);
-            });
-            return html;
-        }
+        // --- 4. CRUD & Core Logic ---
+        const setActiveConversation = (id) => {
+            state.activeConversationId = id;
+            saveState();
+            renderChatLog();
+            renderHistory(); // To update active state
+            closeHistoryPopup();
+        };
 
-        function attachGrammarHoverListeners(messageDiv, corrections) {
-            messageDiv.querySelectorAll('.grammar-error').forEach(span => {
-                let popup = null;
-                span.addEventListener('mouseenter', () => {
-                    if (!popup) {
-                        popup = document.createElement('div');
-                        popup.classList.add('grammar-feedback');
-                        popup.textContent = span.dataset.feedback;
-                        messageDiv.appendChild(popup); // Append to messageDiv, not span directly for positioning
-                        // Position popup relative to the span
-                        const spanRect = span.getBoundingClientRect();
-                        const messageRect = messageDiv.getBoundingClientRect();
-                        popup.style.left = `${spanRect.left - messageRect.left + (spanRect.width / 2)}px`;
-                        popup.style.bottom = `${messageRect.height - (spanRect.top - messageRect.top)}px`; // Position above the word
-                        popup.style.transform = 'translateX(-50%)';
+const createNewChat = () => {
+    const newId = Date.now().toString();
+    state.conversations[newId] = {
+        id: newId,
+        title: "New Conversation",
+        messages: [],
+        createdAt: Date.now()
+    };
+    
+    setActiveConversation(newId);
 
-                        setTimeout(() => popup.classList.add('active'), 10);
-                    }
-                });
-                span.addEventListener('mouseleave', () => {
-                    if (popup) {
-                        popup.classList.remove('active');
-                        setTimeout(() => { if(popup.parentNode) popup.parentNode.removeChild(popup); popup = null; }, 300);
-                    }
-                });
-            });
-        }
+    // Show animated greeting after creating a new chat
+    const greeting = document.querySelector('.animated-greeting');
+    if (greeting) {
+        greeting.style.display = 'block';
+    
+};
+            // No need to close popup here as setActiveConversation already does
+        };
+        
+        const appendMessage = (sender, text, shouldSave = true, shouldAnimate = true) => {    
+    document.querySelector('.animated-greeting').style.display = 'none';
 
-        // --- Word Meaning Popups ---
-        function attachWordMeaningListeners(messageDiv, wordMeanings) {
-            // This is a simplified approach. For robustness, you'd tokenize the text
-            // and wrap each word in a span.
-            const words = messageDiv.textContent.split(/(\s+)/); // Split by whitespace, keeping delimiters
-            messageDiv.innerHTML = ''; // Clear original content
-            words.forEach(part => {
-                const span = document.createElement('span');
-                span.textContent = part;
+            if (shouldSave) {
+                 if (!state.activeConversationId) createNewChat();
+                 const convo = state.conversations[state.activeConversationId];
+                 convo.messages.push({ sender, text });
+                 if (convo.messages.length === 1 && sender === 'user') {
+                     convo.title = text.substring(0, 35) + (text.length > 35 ? '...' : '');
+                 }
+                 saveState();
+                 renderHistory();
+            }
+            if (welcomeScreen.style.display !== 'none') welcomeScreen.style.display = 'none';
 
-                if (part.trim().length > 0) { // If it's a word
-                    const cleanWord = part.replace(/[^a-zA-Z0-9']/g, '').toLowerCase();
-                    if (wordMeanings[cleanWord]) {
-                        span.classList.add('meaning-word');
-                        let popup = null;
-                        span.addEventListener('click', (event) => {
-                            event.stopPropagation(); // Prevent document click from closing it immediately
-                            if (popup && popup.classList.contains('active')) {
-                                popup.classList.remove('active');
-                                setTimeout(() => { if(popup.parentNode) popup.parentNode.removeChild(popup); popup = null; }, 300);
-                            } else {
-                                // Close any other open popups first
-                                document.querySelectorAll('.word-meaning-popup.active').forEach(p => {
-                                    p.classList.remove('active');
-                                    setTimeout(() => { if(p.parentNode) p.parentNode.removeChild(p); }, 300);
-                                });
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-message ${sender}`;
+            if (shouldAnimate) msgDiv.classList.add('animate-in');
+            msgDiv.innerHTML = `
+                <div class="avatar">${sender === 'user' ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`}</div>
+                <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
+            `;
+            chatLogContainer.appendChild(msgDiv);
+            scrollToBottom();
+        };
 
-                                popup = document.createElement('div');
-                                popup.classList.add('word-meaning-popup');
-                                popup.textContent = wordMeanings[cleanWord];
-                                messageDiv.appendChild(popup); // Append to messageDiv, not span directly for positioning
-                                // Position popup relative to the span
-                                const spanRect = span.getBoundingClientRect();
-                                const messageRect = messageDiv.getBoundingClientRect();
-                                popup.style.left = `${spanRect.left - messageRect.left + (spanRect.width / 2)}px`;
-                                popup.style.bottom = `${messageRect.height - (spanRect.top - messageRect.top)}px`; // Position above the word
-                                popup.style.transform = 'translateX(-50%)';
-
-                                setTimeout(() => popup.classList.add('active'), 10);
-                            }
-                        });
-                    }
-                }
-                messageDiv.appendChild(span);
-            });
-             // Close popup if clicking anywhere else on the message div
-            messageDiv.addEventListener('click', (event) => {
-                document.querySelectorAll('.word-meaning-popup.active').forEach(p => {
-                    if (!p.contains(event.target) && !event.target.classList.contains('meaning-word')) {
-                        p.classList.remove('active');
-                        setTimeout(() => { if(p.parentNode) p.parentNode.removeChild(p); }, 300);
-                    }
-                });
-            });
-        }
-
-
-        // --- Send Message Function ---
-        async function sendMessage() {
+        async function handleSendMessage() {
             const message = userInput.value.trim();
-            if (message === '') return;
-
-            // Immediately append user message (without feedback yet)
+            if (!message) return;
+            if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') { alert("⚠️ Please set your Gemini API key in the script."); return; }
+            
             appendMessage('user', message);
-            userInput.value = '';
-            chatLoadingSpinner.classList.add('active'); // Show spinner
-            suggestionButtons.innerHTML = ''; // Clear suggestions while processing
-
+            userInput.value = ''; userInput.style.height = 'auto'; sendMessageBtn.disabled = true;
+            
             try {
-                const response = await fetch('/api/chat', { // THIS IS YOUR BACKEND ENDPOINT
+                const response = await fetch(GEMINI_API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: message }] }] })
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error((await response.json()).error.message);
                 const data = await response.json();
-                console.log("Backend response:", data);
-
-                // Update the last user message with grammar feedback and word meanings
-                const lastUserMessageDiv = chatDisplay.querySelector('.chat-message.user:last-child');
-                if (lastUserMessageDiv) {
-                    // Re-process the user message HTML with feedback
-                    let updatedUserHtml = message;
-                    if (data.grammarFeedback && data.grammarFeedback.corrections && data.grammarFeedback.corrections.length > 0) {
-                        updatedUserHtml = highlightGrammarErrors(message, data.grammarFeedback.corrections);
-                    }
-                    lastUserMessageDiv.innerHTML = updatedUserHtml;
-
-                    // Re-attach listeners after updating innerHTML
-                    if (data.grammarFeedback && data.grammarFeedback.corrections && data.grammarFeedback.corrections.length > 0) {
-                        attachGrammarHoverListeners(lastUserMessageDiv, data.grammarFeedback.corrections);
-                    }
-                    if (data.wordMeanings && Object.keys(data.wordMeanings).length > 0) {
-                        attachWordMeaningListeners(lastUserMessageDiv, data.wordMeanings);
-                    }
-                }
-
-                // Append AI's response
-                if (data.geminiResponse) {
-                    appendMessage('ai', data.geminiResponse);
-                }
-
-                // Populate new suggestions
-                if (data.suggestions && data.suggestions.length > 0) {
-                    data.suggestions.forEach(suggestion => {
-                        const btn = document.createElement('button');
-                        btn.classList.add('btn');
-                        btn.textContent = suggestion;
-                        btn.addEventListener('click', () => {
-                            userInput.value = suggestion;
-                            sendMessage();
-                        });
-                        suggestionButtons.appendChild(btn);
-                    });
-                }
-
-            } catch (error) {
-                console.error('Error sending message:', error);
-                appendMessage('ai', 'Oops! Something went wrong. Please try again.');
-            } finally {
-                chatLoadingSpinner.classList.remove('active'); // Hide spinner
-            }
+                const aiResponseText = data.candidates[0]?.content?.parts[0]?.text || "Sorry, I couldn't process that.";
+                appendMessage('ai', aiResponseText);
+            } catch (error) { appendMessage('ai', `Sorry, an error occurred: ${error.message}`); }
         }
-
-        sendMessageBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
+        
+        // --- 5. Event Listeners & Initialization ---
+        const scrollToBottom = () => chatDisplayWrapper.scrollTop = chatDisplayWrapper.scrollHeight;
+        menuBtn.addEventListener('click', openHistoryPopup);
+        exitHistoryBtn.addEventListener('click', closeHistoryPopup);
+        historyOverlay.addEventListener('click', (e) => {
+            if (e.target === historyOverlay) closeHistoryPopup();
         });
+        newChatBtn.addEventListener('click', createNewChat);
+        sendMessageBtn.addEventListener('click', handleSendMessage);
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+        userInput.addEventListener('input', () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; sendMessageBtn.disabled = userInput.value.trim().length === 0; });
+        
+        // --- Initial Load ---
+        loadState();
+        if (Object.keys(state.conversations).length > 0 && (!state.activeConversationId || !state.conversations[state.activeConversationId])) {
+            state.activeConversationId = Object.keys(state.conversations).sort((a,b) => b-a)[0];
+        }
+        renderHistory();
+        renderChatLog();
+        userInput.style.height = 'auto'; sendMessageBtn.disabled = true;
     </script>
 </body>
 </html>
