@@ -29,6 +29,7 @@ body {
 
 /* App Container (mimics a mobile/tablet app frame) */
 .app-container {
+    position: relative; /* <-- UPDATED: Sets a positioning context for children */
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -82,7 +83,11 @@ body {
 
 /* Bottom Navigation */
 .bottom-nav {
-    position:fixed;
+    position: absolute;   /* <-- UPDATED */
+    bottom: 0;            /* <-- ADDED */
+    left: 0;              /* <-- ADDED */
+    width: 100%;          /* <-- ADDED */
+    box-sizing: border-box; /* <-- ADDED */
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -124,13 +129,10 @@ body {
 }
 
 /* --- Common Styles for Iframe Content --- */
-/* These styles will be included in each HTML file inside the 'pages' directory */
-/* Or, you can link this same style.css inside each iframe page as well.
-   For simplicity, I'll put these directly in each iframe HTML file's <style> tag. */
-
 .page-content {
     padding: 20px;
-    height: calc(100% - 40px); /* Adjust for padding */
+    padding-bottom: 80px; /* <-- ADDED: Prevents content from being hidden by the nav bar */
+    height: 100%; /* Use 100% instead of calc to ensure it fills the parent */
     overflow-y: auto;
     box-sizing: border-box;
 }
