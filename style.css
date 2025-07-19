@@ -29,7 +29,8 @@ body {
 
 /* App Container (mimics a mobile/tablet app frame) */
 .app-container {
-    position: relative; /* <-- UPDATED: Sets a positioning context for children */
+    /* This establishes the positioning context for the nav bar */
+    position: relative; 
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -69,6 +70,7 @@ body {
 
 /* Content Area (Iframe Container) */
 .content-area {
+    /* This makes the content area fill the available space */
     flex-grow: 1;
     overflow: hidden; /* Important for iframe to fit */
     position: relative;
@@ -83,11 +85,12 @@ body {
 
 /* Bottom Navigation */
 .bottom-nav {
-    position: absolute;   /* <-- UPDATED */
-    bottom: 0;            /* <-- ADDED */
-    left: 0;              /* <-- ADDED */
-    width: 100%;          /* <-- ADDED */
-    box-sizing: border-box; /* <-- ADDED */
+    /* These rules "fix" the nav to the bottom of .app-container */
+    position: absolute;   
+    bottom: 0;            
+    left: 0;              
+    width: 100%;          
+    box-sizing: border-box; 
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -95,7 +98,7 @@ body {
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.03);
-    z-index: 10;
+    z-index: 10; /* Ensures it's on top of the content */
 }
 
 .nav-button {
@@ -129,10 +132,15 @@ body {
 }
 
 /* --- Common Styles for Iframe Content --- */
+/* NOTE: These styles must be applied inside your iframe pages */
 .page-content {
+    /* This padding prevents the fixed nav bar from hiding content */
+    display:flex;
+
     padding: 20px;
-    padding-bottom: 80px; /* <-- ADDED: Prevents content from being hidden by the nav bar */
-    height: 100%; /* Use 100% instead of calc to ensure it fills the parent */
+    padding-bottom: 80px; 
+    height: 100%; 
+    /* This makes the content area scrollable */
     overflow-y: auto;
     box-sizing: border-box;
 }
@@ -243,7 +251,6 @@ textarea {
         border-radius: 0;
         height: 100vh;
         max-height: unset;
-
     }
     .app-header {
         padding: 15px;
