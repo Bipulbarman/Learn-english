@@ -3,41 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Learning AI App</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Local File Website</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+        /* Transparent Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: transparent;
+            z-index: 100;
+            pointer-events: none; 
+        }
+
+        /* --- TOGGLE CUSTOMIZATION START --- */
+        #menu-toggle {
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #menu-toggle span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #333; /* Color of the hamburger bars */
+            border-radius: 3px;
+        }
+        /* --- TOGGLE CUSTOMIZATION END --- */
+        
+        /* Popup Menu */
+        #popup-menu {
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            top: 75px;
+            right: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            overflow: hidden;
+        }
+        #popup-menu.show {
+            display: flex;
+        }
+        /* Menu Links */
+        #popup-menu a {
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: #333;
+            display: block;
+            min-width: 150px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #popup-menu a:hover {
+            background-color: #f4f4f4;
+        }
+        #popup-menu a.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        /* Fullscreen Iframe */
+        #content-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <main class="content-area">
-            <iframe id="contentFrame" src="pages/home.html" frameborder="0"></iframe>
-        </main>
 
-        <div id="nav-toggle-button">
-            <span class="material-icons">menu</span>
-        </div>
+    <header>
+        <button id="menu-toggle" title="Toggle Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
 
-        <nav class="bottom-nav">
-            <button class="nav-button active" data-page="home">
-                <span class="material-icons">home</span>
-                <span class="button-text">Home</span>
-            </button>
-            <button class="nav-button" data-page="learn-chat">
-                <span class="material-icons">chat</span>
-                <span class="button-text">Chat</span>
-            </button>
-            <button class="nav-button" data-page="fill-in-blanks">
-                <span class="material-icons">edit_note</span>
-                <span class="button-text">Fill Blanks</span>
-            </button>
-            <button class="nav-button" data-page="reading-comprehension">
-                <span class="material-icons">menu_book</span>
-                <span class="button-text">Reading</span>
-            </button>
-        </nav>
-    </div>
+    <nav id="popup-menu">
+        <a href="learn-chat.html">Home Page</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact Form</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
 
-    <script src="script.js"></script>
+    <iframe id="content-frame" src="" frameborder="0"></iframe>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('menu-toggle');
+            const popupMenu = document.getElementById('popup-menu');
+            const iframe = document.getElementById('content-frame');
+            const menuLinks = popupMenu.querySelectorAll('a');
+
+            const setActiveLink = (targetUrl) => {
+                menuLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === targetUrl) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+            
+            // --- DYNAMIC DEFAULT PAGE START ---
+            // Automatically set the iframe source to the first link in the menu
+            if (menuLinks.length > 0) {
+                const initialUrl = menuLinks[0].getAttribute('href');
+                iframe.src = initialUrl;
+                setActiveLink(initialUrl);
+            }
+            // --- DYNAMIC DEFAULT PAGE END ---
+
+            menuToggle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                popupMenu.classList.toggle('show');
+            });
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const url = link.getAttribute('href');
+                    iframe.src = url;
+                    setActiveLink(url);
+                    popupMenu.classList.remove('show');
+                });
+            });
+
+            window.addEventListener('click', () => {
+                if (popupMenu.classList.contains('show')) {
+                    popupMenu.classList.remove('show');
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
