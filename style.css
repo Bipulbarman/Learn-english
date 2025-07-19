@@ -27,12 +27,10 @@ body {
     overflow: hidden; /* Hide overflow for the main app container */
 }
 
-/* App Container (mimics a mobile/tablet app frame) */
+/* App Container (Establishes the Flexbox layout) */
 .app-container {
-    /* This establishes the positioning context for the nav bar */
-    position: relative; 
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Stacks children vertically */
     width: 100%;
     max-width: 700px; /* Max width for desktop view */
     height: 100vh; /* Full height on mobile */
@@ -40,12 +38,12 @@ body {
     background-color: var(--surface-color);
     border-radius: 16px;
     box-shadow: 0 8px 30px var(--shadow-color);
-    overflow: hidden;
+    overflow: hidden; /* Clips the child corners to the border-radius */
 }
 
 /* Header */
 .app-header {
-    display: none;
+    display: none; /* This is a non-growing flex item */
     justify-content: space-between;
     align-items: center;
     padding: 15px 25px;
@@ -68,12 +66,11 @@ body {
     cursor: pointer;
 }
 
-/* Content Area (Iframe Container) */
+/* Content Area (Iframe Container) - UPDATED */
 .content-area {
-    /* This makes the content area fill the available space */
-    flex-grow: 1;
-    overflow: hidden; /* Important for iframe to fit */
-    position: relative;
+    flex-grow: 1; /* Key Change: This makes the content area fill all available vertical space */
+    overflow-y: auto; /* Key Change: If content overflows, this container will scroll, not the page */
+    position: relative; /* For any potential absolutely positioned children inside */
 }
 
 .content-area iframe {
@@ -83,14 +80,10 @@ body {
     display: block;
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - UPDATED */
 .bottom-nav {
-    /* These rules "fix" the nav to the bottom of .app-container */
-    position: absolute;   
-    bottom: 0;            
-    left: 0;              
-    width: 100%;          
-    box-sizing: border-box; 
+    /* Key Change: All 'position: absolute' properties have been removed. */
+    /* It is now a standard flex item that sits at the bottom of the column flow. */
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -98,7 +91,7 @@ body {
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.03);
-    z-index: 10; /* Ensures it's on top of the content */
+    z-index: 10; /* Ensures it's on top of other content if overlaps occur */
 }
 
 .nav-button {
@@ -134,14 +127,9 @@ body {
 /* --- Common Styles for Iframe Content --- */
 /* NOTE: These styles must be applied inside your iframe pages */
 .page-content {
-    /* This padding prevents the fixed nav bar from hiding content */
-    display:flex;
-
-    padding: 20px;
-    padding-bottom: 80px; 
-    height: 100%; 
-    /* This makes the content area scrollable */
-    overflow-y: auto;
+    padding: 20px; /* Simplified Padding */
+    /* Key Change: The large 'padding-bottom' is removed as it's no longer needed for layout. */
+    /* The main content area handles scrolling, not this element. */
     box-sizing: border-box;
 }
 
