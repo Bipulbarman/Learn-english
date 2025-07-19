@@ -238,9 +238,12 @@ textarea {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .app-container {
+        display:flex;
+        flex-direction:column;
         border-radius: 0;
         height: 100vh;
         max-height: unset;
+
     }
     .app-header {
         padding: 15px;
