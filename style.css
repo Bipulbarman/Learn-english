@@ -43,7 +43,7 @@ body {
 
 /* Header */
 .app-header {
-    display: flex;
+    display: none;
     justify-content: space-between;
     align-items: center;
     padding: 15px 25px;
@@ -82,7 +82,7 @@ body {
 
 /* Bottom Navigation */
 .bottom-nav {
-    display: flex;
+    display: fixed;
     justify-content: space-around;
     align-items: center;
     padding: 10px 0;
