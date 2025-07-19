@@ -1,31 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const contentFrame = document.getElementById('contentFrame');
     const navButtons = document.querySelectorAll('.nav-button');
-
-    // --- New API Request Code ---
-    // Function to fetch data from the new backend API
-    async function fetchData() {
-        try {
-            const response = await fetch('https://learn-english-spoken.onrender.com/api/learn');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            // You can now use this data in your application
-        } catch (error) {
-            // Handle error appropriately
-        }
-    }
-
-    // Call the function to fetch data when the page loads
-    fetchData();
-    // --------------------------
-
+    const bottomNav = document.querySelector('.bottom-nav');
+    const navToggleButton = document.getElementById('nav-toggle-button');
 
     // Function to load content into the iframe
     function loadPage(pageName) {
         contentFrame.src = `pages/${pageName}.html`;
-        // Update active state of navigation buttons
+        [span_0](start_span)// Update active state of navigation buttons[span_0](end_span)
         navButtons.forEach(button => {
             if (button.dataset.page === pageName) {
                 button.classList.add('active');
@@ -42,4 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadPage(page);
         });
     });
+
+    // Add event listener to the toggle button
+    navToggleButton.addEventListener('click', () => {
+        bottomNav.classList.toggle('visible');
+    });
+
+    [span_1](start_span)// It defaults to 'home.html' as set in index.html src[span_1](end_span)
 });
