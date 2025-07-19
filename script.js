@@ -11,10 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log('Successfully fetched data:', data); // You can now use this data in your application
-            // Example: You could pass this data to the loaded page or display it somewhere
+            // You can now use this data in your application
         } catch (error) {
-            console.error('Error fetching data:', error);
+            // Handle error appropriately
         }
     }
 
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to load content into the iframe
     function loadPage(pageName) {
         contentFrame.src = `pages/${pageName}.html`;
-
         // Update active state of navigation buttons
         navButtons.forEach(button => {
             if (button.dataset.page === pageName) {
@@ -44,7 +42,4 @@ document.addEventListener('DOMContentLoaded', () => {
             loadPage(page);
         });
     });
-
-    // Optional: Load a specific page on initial load if needed (e.g., from URL hash)
-    // For now, it defaults to 'home.html' as set in index.html src.
 });
