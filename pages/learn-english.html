@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor - Learn English</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. Global Styles & Theme --- */
+        :root {
+            --background-color: #f8f9fa;
+            --popup-bg-color: #ffffff;
+            --chat-surface-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --primary-hover-color: #0b5ed7;
+            --user-message-bg: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --icon-color: #6c757d;
+            --cut-corner-size: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        /* --- 2. Main App Layout --- */
+        .chat-app-container { display: flex; height: 100vh; position: relative; }
+        .main-chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animated-greeting {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #4285F4;
+            opacity: 0;
+            animation: fadeInScale 1.5s ease-out forwards;
+            white-space: nowrap;
+            z-index: 1;
+            text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: translate(-50%, -40%) scale(0.8); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* --- 3. History Popup Section --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.open { opacity: 1; visibility: visible; }
+
+        .history-popup {
+            background-color: var(--popup-bg-color); width: 90%; max-width: 420px;
+            height: 85vh; max-height: 700px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 20px;
+            display: flex; flex-direction: column; position: relative;
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .popup-overlay.open .history-popup { transform: scale(1); }
+        
+        .exit-btn {
+            position: absolute; top: 12px; right: 12px; background: var(--user-message-bg);
+            border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--icon-color); transition: background-color 0.2s, transform 0.2s;
+        }
+        .exit-btn:hover { background-color: #d8dde1; transform: rotate(90deg); }
+        .exit-btn svg { width: 20px; height: 20px; }
+
+        .new-chat-btn {
+            display: flex; align-items: center; gap: 12px; width: 100%;
+            padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;
+            font-size: 0.9em; font-weight: 600; cursor: pointer;
+            background-color: transparent; color: var(--text-primary);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .new-chat-btn:hover { background-color: #f1f3f5; }
+        .chat-history { margin-top: 20px; overflow-y: auto; flex-grow: 1; padding-right: 10px; }
+        .chat-history::-webkit-scrollbar { width: 6px; }
+        .chat-history::-webkit-scrollbar-track { background: transparent; }
+        .chat-history::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        .history-group { margin-bottom: 20px; }
+        .history-group-title {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            color: var(--text-secondary); padding: 0 8px 8px; letter-spacing: 0.5px;
+        }
+        .chat-history-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.9em;
+            transition: background-color 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .chat-history-item:hover { background-color: var(--user-message-bg); }
+        .chat-history-item.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+
+        /* --- 4. Main Chat Area --- */
+        .menu-btn {
+            position: absolute; top: 20px; left: 20px; z-index: 101;
+            background-color: var(--popup-bg-color); border: 1px solid var(--border-color);
+            border-radius: 50%; width: 48px; height: 48px; cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s ease-out;
+        }
+        .menu-btn:hover { transform: scale(1.05); }
+        .menu-btn svg { width: 24px; height: 24px; color: var(--icon-color); }
+
+        .chat-header-fade {
+            position: absolute; top: 0px; left: 0; right: 0; height: 110px;
+            background: linear-gradient(to bottom, var(--background-color) 60%, transparent);
+            z-index: 5; pointer-events: none;
+        }
+
+        .chat-display-wrapper { flex-grow: 1; overflow-y: auto; padding: 24px 8px; }
+        .chat-log-container { max-width: 820px; margin: 45px auto; padding: 0 16px; }
+
+        #welcomeScreen {
+            text-align: center; padding: 40px 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100%;
+        }
+        #welcomeScreen h1 { font-size: 2em; font-weight: 700; margin-bottom: 8px; }
+        #welcomeScreen p { color: var(--text-secondary); font-size: 1.1em; }
+
+        @keyframes message-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-message { display: flex; gap: 12px; margin-bottom: 28px; max-width: 90%; }
+        .chat-message.animate-in { animation: message-in 0.4s ease-out forwards; }
+        .chat-message.user { flex-direction: row-reverse; margin-left: auto; }
+        .avatar { display: none; } /* Avatars are hidden */
+        .message-content {
+            padding: 10px 16px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 1em;
+            word-wrap: break-word;
+        }
+        .chat-message.ai .message-content { background-color: var(--user-message-bg); color: var(--text-primary); }
+        .chat-message.user .message-content { background-color: var(--primary-color); color: white; }
+
+        /* Typing indicator */
+        .typing-indicator span {
+            height: 8px; width: 8px; background-color: #999; border-radius: 50%;
+            display: inline-block; animation: wave 1.2s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-of-type(2) { animation-delay: -1.0s; }
+        .typing-indicator span:nth-of-type(3) { animation-delay: -0.8s; }
+        @keyframes wave { 0%, 60%, 100% { transform: initial; } 30% { transform: translateY(-10px); } }
+
+        /* --- 5. Chat Input Area --- */
+        .chat-input-container {
+            padding: 16px 24px 24px;
+            background-color: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(10px); z-index: 10;
+        }
+        .input-wrapper {
+            max-width: 820px; margin: 0 auto; display: flex; align-items: flex-end;
+            background-color: var(--popup-bg-color); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 4px; box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        .input-wrapper:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(13,110,253,.25); }
+
+        .input-wrapper textarea {
+            flex-grow: 1; border: none; outline: none; resize: none; font-family: inherit;
+            font-size: 1em; background: transparent; max-height: 200px;
+            line-height: 1.6; padding: 10px 8px;
+        }
+        
+        .send-btn, .task-btn {
+            width: 40px; height: 40px; border-radius: 8px; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background-color 0.2s;
+            margin: 4px; flex-shrink: 0;
+        }
+        .task-btn { background-color: #e9ecef; color: var(--icon-color); }
+        .task-btn:hover { background-color: #dee2e6; }
+
+        .send-btn { background-color: var(--primary-color); color: white; }
+        .send-btn:hover { background-color: var(--primary-hover-color); }
+        .send-btn:disabled { background-color: #adb5bd; cursor: not-allowed; }
+
+        /* --- 6. Task Selector Popup Styles --- */
+        .task-popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1001; /* Higher than history popup */
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .task-popup-overlay.open { opacity: 1; visibility: visible; }
+        .task-popup {
+            background-color: var(--popup-bg-color);
+            padding: 16px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 90%; max-width: 320px;
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .task-popup-overlay.open .task-popup { transform: scale(1); }
+        .task-popup h3 { margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary); }
+        .task-popup ul { list-style: none; }
+        .task-popup .task-item {
+            padding: 12px; border-radius: 8px; cursor: pointer;
+            font-weight: 500; transition: background-color 0.2s;
+        }
+        .task-popup .task-item:hover { background-color: var(--user-message-bg); }
+        .task-popup .task-item.active { background-color: var(--primary-color); color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="chat-app-container">
+        <div class="popup-overlay" id="historyOverlay">
+            <div class="history-popup" id="historyPopup">
+                <button class="exit-btn" id="exitHistoryBtn" aria-label="Close History">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    <span>New Chat</span>
+                </button>
+                <div class="chat-history" id="chatHistory"></div>
+            </div>
+        </div>
+
+        <main class="main-chat-area">
+            <button class="menu-btn" id="menuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+            </button>
+            <div class="chat-header-fade"></div>
+            
+            <div class="animated-greeting" style="display: none;">
+                হ্যালো, Sukumar
+            </div>
+
+            <div class="chat-display-wrapper" id="chatDisplayWrapper">
+                <div class="chat-log-container" id="chatLogContainer">
+                    <div id="welcomeScreen">
+                        <h1>Welcome!</h1>
+                        <p>Select a task and ask a question to get started.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <button class="task-btn" id="taskBtn" aria-label="Select Task">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5V13H9.5v-2H11V9.5h2V11h1.5v2H13v3.5h-2z"/></svg>
+                    </button>
+                    <textarea id="userInput" placeholder="Ask a question..." rows="1"></textarea>
+                    <button class="send-btn" id="sendMessageBtn" aria-label="Send Message" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="task-popup-overlay" id="taskPopupOverlay">
+        <div class="task-popup" id="taskPopup">
+            <h3>Select a Task</h3>
+            <ul id="taskList">
+                <li class="task-item active" data-task="correct-grammar">Correct Grammar</li>
+                <li class="task-item" data-task="rephrase-fluently">Rephrase Fluently</li>
+                <li class="task-item" data-task="explain-this">Explain This</li>
+                <li class="task-item" data-task="translate-to-bengali">Translate to Bengali</li>
+                   <li class="task-item" data-task="explain-vocabulary">explain-vocabulary</li>
+                    <li class="task-item" data-task="improve-sentence">improve-sentence</li>
+            </ul>
+        </div>
+    </div>
+
+<script>
+    // --- 1. DOM & Config ---
+    const getEl = (id) => document.getElementById(id);
+    const historyOverlay = getEl('historyOverlay'), historyPopup = getEl('historyPopup');
+    const exitHistoryBtn = getEl('exitHistoryBtn'), menuBtn = getEl('menuBtn'), newChatBtn = getEl('newChatBtn');
+    const chatHistoryContainer = getEl('chatHistory');
+    const chatDisplayWrapper = getEl('chatDisplayWrapper'), chatLogContainer = getEl('chatLogContainer');
+    const welcomeScreen = getEl('welcomeScreen'), userInput = getEl('userInput'), sendMessageBtn = getEl('sendMessageBtn');
+    
+    // New Task Selector Elements
+    const taskBtn = getEl('taskBtn');
+    const taskPopupOverlay = getEl('taskPopupOverlay');
+    const taskPopup = getEl('taskPopup');
+    const taskList = getEl('taskList');
+
+    const BACKEND_URL = 'https://learn-english-spoken.onrender.com/api/learn';
+
+    // --- 2. State Management ---
+    let state = { conversations: {}, activeConversationId: null };
+    let currentTask = 'correct-grammar'; // Default task
+
+    const saveState = () => localStorage.setItem('aiTutorState_v4', JSON.stringify(state));
+    const loadState = () => {
+        const saved = localStorage.getItem('aiTutorState_v4');
+        if (saved) state = JSON.parse(saved);
+    };
+
+    // --- 3. UI Rendering & Popups ---
+    const openHistoryPopup = () => historyOverlay.classList.add('open');
+    const closeHistoryPopup = () => historyOverlay.classList.remove('open');
+
+    // Task Popup Logic
+    const openTaskPopup = () => taskPopupOverlay.classList.add('open');
+    const closeTaskPopup = () => taskPopupOverlay.classList.remove('open');
+    
+    const updateActiveTaskInUI = () => {
+        document.querySelectorAll('.task-item').forEach(item => {
+            if (item.dataset.task === currentTask) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    };
+
+    const groupConversationsByDate = () => {
+        const groups = { Today: [], Yesterday: [], "Previous 7 Days": [], Older: [] };
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+        const lastWeek = new Date(today); lastWeek.setDate(lastWeek.getDate() - 7);
+        Object.values(state.conversations).sort((a,b) => b.createdAt - a.createdAt).forEach(convo => {
+            const convoDate = new Date(convo.createdAt);
+            if (convoDate >= today) groups.Today.push(convo);
+            else if (convoDate >= yesterday) groups.Yesterday.push(convo);
+            else if (convoDate >= lastWeek) groups["Previous 7 Days"].push(convo);
+            else groups.Older.push(convo);
+        });
+        return groups;
+    };
+
+    const renderHistory = () => {
+        const groups = groupConversationsByDate();
+        chatHistoryContainer.innerHTML = '';
+        for (const groupName in groups) {
+            if (groups[groupName].length > 0) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'history-group';
+                groupDiv.innerHTML = `<h3 class="history-group-title">${groupName}</h3>`;
+                groups[groupName].forEach(convo => {
+                    const item = document.createElement('div');
+                    item.className = 'chat-history-item';
+                    item.dataset.id = convo.id;
+                    if (convo.id === state.activeConversationId) item.classList.add('active');
+                    item.textContent = convo.title;
+                    item.addEventListener('click', () => setActiveConversation(convo.id));
+                    groupDiv.appendChild(item);
+                });
+                chatHistoryContainer.appendChild(groupDiv);
+            }
+        }
+    };
+
+    const renderChatLog = () => {
+        chatLogContainer.innerHTML = '';
+        if (!state.activeConversationId || !state.conversations[state.activeConversationId]) {
+            welcomeScreen.style.display = 'flex';
+            // Hide greeting if no active chat
+            document.querySelector('.animated-greeting').style.display = 'none';
+            return;
+        }
+        welcomeScreen.style.display = 'none';
+        const convo = state.conversations[state.activeConversationId];
+        convo.messages.forEach(msg => appendMessage(msg.sender, msg.text, false, false));
+        scrollToBottom();
+    };
+
+    // --- 4. CRUD & Core Logic ---
+    const setActiveConversation = (id) => {
+        state.activeConversationId = id;
+        saveState();
+        renderChatLog();
+        renderHistory();
+        closeHistoryPopup();
+    };
+
+    const createNewChat = () => {
+        const newId = Date.now().toString();
+        state.conversations[newId] = { id: newId, title: "New Conversation", messages: [], createdAt: Date.now() };
+        setActiveConversation(newId);
+        const greeting = document.querySelector('.animated-greeting');
+        if (greeting) greeting.style.display = 'block';
+    };
+
+    const appendMessage = (sender, text, shouldSave = true, shouldAnimate = true) => {
+        document.querySelector('.animated-greeting').style.display = 'none';
+
+        if (shouldSave) {
+             if (!state.activeConversationId) createNewChat();
+             const convo = state.conversations[state.activeConversationId];
+             convo.messages.push({ sender, text });
+             if (convo.messages.length === 1 && sender === 'user') {
+                 convo.title = text.substring(0, 35) + (text.length > 35 ? '...' : '');
+             }
+             saveState();
+             renderHistory();
+        }
+        if (welcomeScreen.style.display !== 'none') welcomeScreen.style.display = 'none';
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-message ${sender}`;
+        if (shouldAnimate) msgDiv.classList.add('animate-in');
+        
+        // Sanitize text to prevent HTML injection
+        const safeText = document.createElement('div');
+        safeText.innerText = text;
+        
+        msgDiv.innerHTML = `<div class="message-content">${safeText.innerHTML.replace(/\n/g, '<br>')}</div>`;
+        chatLogContainer.appendChild(msgDiv);
+        scrollToBottom();
+    };
+    
+    async function handleSendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        appendMessage('user', message);
+        userInput.value = ''; userInput.style.height = 'auto'; sendMessageBtn.disabled = true;
+
+        // Display a temporary "thinking" message
+        const thinkingMsgDiv = document.createElement('div');
+        thinkingMsgDiv.className = 'chat-message ai';
+        thinkingMsgDiv.innerHTML = `<div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+        chatLogContainer.appendChild(thinkingMsgDiv);
+        scrollToBottom();
+
+        try {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // ***MODIFIED*** Sending the selected task and the message text
+                body: JSON.stringify({ task: currentTask, text: message })
+            });
+
+            chatLogContainer.removeChild(thinkingMsgDiv);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `Request failed with status ${response.status}` }));
+                throw new Error(errorData.message);
+            }
+
+            const data = await response.json();
+            const aiResponseText = data.message || "Sorry, I couldn't process that response.";
+            appendMessage('ai', aiResponseText);
+
+        } catch (error) {
+            if (chatLogContainer.contains(thinkingMsgDiv)) {
+                chatLogContainer.removeChild(thinkingMsgDiv);
+            }
+            appendMessage('ai', `Sorry, an error occurred: ${error.message}`);
+        }
+    }
+
+    // --- 5. Event Listeners & Initialization ---
+    const scrollToBottom = () => chatDisplayWrapper.scrollTop = chatDisplayWrapper.scrollHeight;
+    
+    // History Popup Listeners
+    menuBtn.addEventListener('click', openHistoryPopup);
+    exitHistoryBtn.addEventListener('click', closeHistoryPopup);
+    historyOverlay.addEventListener('click', (e) => {
+        if (e.target === historyOverlay) closeHistoryPopup();
+    });
+    
+    // Task Popup Listeners
+    taskBtn.addEventListener('click', openTaskPopup);
+    taskPopupOverlay.addEventListener('click', (e) => {
+        if (e.target === taskPopupOverlay) closeTaskPopup();
+    });
+    taskList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('task-item')) {
+            currentTask = e.target.dataset.task;
+            updateActiveTaskInUI();
+            closeTaskPopup();
+        }
+    });
+
+    newChatBtn.addEventListener('click', createNewChat);
+    sendMessageBtn.addEventListener('click', handleSendMessage);
+    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = `${userInput.scrollHeight}px`;
+        sendMessageBtn.disabled = userInput.value.trim().length === 0;
+    });
+
+    // --- Initial Load ---
+    loadState();
+    if (Object.keys(state.conversations).length > 0 && (!state.activeConversationId || !state.conversations[state.activeConversationId])) {
+        // Load the most recent conversation by default
+        state.activeConversationId = Object.keys(state.conversations).sort((a,b) => b-a)[0];
+    }
+    renderHistory();
+    renderChatLog();
+    updateActiveTaskInUI(); // Set active task on load
+    userInput.style.height = 'auto';
+    sendMessageBtn.disabled = true;
+
+</script>
+</body>
+</html>
