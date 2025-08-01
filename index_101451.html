@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI English Tutor</title>
+    <style>
+        /* --- General Setup and Variables --- */
+        :root {
+            --primary-bg: #0c0c0c;
+            --secondary-bg: #1a1a1a;
+            --tertiary-bg: #2b2b2b;
+            --primary-text: #f0f0f0;
+            --secondary-text: #a0a0a0;
+            --accent-color: #007aff;
+            --user-bubble-bg: #005c4b;
+            --ai-bubble-bg: #2a3942;
+            --border-color: #333;
+            --danger-color: #e53935;
+        }
+
+        /* --- Base Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            overflow: hidden;
+        }
+
+        /* --- Main App Layout --- */
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .app-header img { height: 30px; }
+        #chat-container { flex-grow: 1; overflow-y: auto; padding: 16px 16px 100px 16px; }
+
+        /* --- Chat Bubbles & Formatted Responses --- */
+        .chat-message { display: flex; margin-bottom: 12px; max-width: 85%; }
+        .chat-message .bubble { padding: 10px 15px; border-radius: 18px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
+        .user-message { justify-content: flex-end; margin-left: auto; }
+        .user-message .bubble { background-color: var(--user-bubble-bg); color: white; border-bottom-right-radius: 4px; }
+        .ai-message { justify-content: flex-start; margin-right: auto; }
+        .ai-message .bubble { background-color: var(--ai-bubble-bg); border-bottom-left-radius: 4px; display: flex; flex-direction: column; gap: 12px; width: 100%;}
+        .typing-indicator { font-style: italic; color: var(--secondary-text); }
+        .ai-response-block { padding: 10px; border-left: 3px solid var(--accent-color); background-color: rgba(0,0,0,0.2); border-radius: 6px; }
+        .ai-response-block h4 { font-size: 0.9rem; font-weight: 600; color: var(--accent-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ai-response-block p, .ai-response-block li { font-size: 0.95rem; line-height: 1.6; }
+        .ai-response-block .corrected-text { font-style: italic; color: #a5d6a7; }
+        .ai-response-block ul { list-style-position: inside; padding-left: 5px; }
+
+        /* --- MODERN TYPING BAR --- */
+        .input-area-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 10px 12px 20px 12px; z-index: 100; }
+        .input-area { display: flex; align-items: flex-end; gap: 8px; padding: 8px; background-color: var(--secondary-bg); border-radius: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 1px solid var(--border-color); }
+        #userInput { flex-grow: 1; border: none; background-color: transparent; color: var(--primary-text); max-height: 120px; resize: none; font-size: 1rem; line-height: 1.5; outline: none; padding: 8px 4px; }
+
+        /* UPDATED: Icon Button and SVG Styling */
+        .icon-btn {
+            background: none; border: none; color: var(--secondary-text); cursor: pointer; padding: 8px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+            flex-shrink: 0; transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .icon-btn:hover { color: var(--primary-text); background-color: var(--tertiary-bg); }
+        .icon-btn.active { color: var(--accent-color); }
+        .icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor; /* Allows SVG color to be changed with the CSS 'color' property */
+        }
+        
+        #sendBtn {
+            background-color: var(--accent-color); color: white; opacity: 0.5; cursor: default;
+            pointer-events: none; transform: scale(0.8); transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        #sendBtn.active { opacity: 1; pointer-events: all; cursor: pointer; transform: scale(1); }
+
+        /* --- Panels & Overlay --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .overlay.show { opacity: 1; pointer-events: all; }
+        #filter-popover { position: fixed; bottom: 90px; left: 12px; width: calc(100% - 24px); background-color: var(--tertiary-bg); border-radius: 16px; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); z-index: 200; opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; }
+        #filter-popover.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+        #filter-popover h3 { margin-bottom: 12px; font-size: 1rem; font-weight: 500; }
+        #filters-content { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-option { background-color: var(--secondary-bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 20px; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: background-color 0.2s ease, color 0.2s ease; }
+        .filter-option input[type="checkbox"] { display: none; }
+        .filter-option:has(input:checked) { background-color: var(--accent-color); border-color: var(--accent-color); color: white; }
+        #history-panel { position: fixed; top: 0; left: 0; width: 85%; max-width: 320px; height: 100%; background-color: var(--secondary-bg); box-shadow: 4px 0 20px rgba(0,0,0,0.3); z-index: 200; display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+        #history-panel.show { transform: translateX(0); }
+        .history-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .history-header h2 { font-size: 1.2rem; }
+        #history-list-container { flex-grow: 1; overflow-y: auto; }
+        #history-list { list-style: none; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .history-item:hover { background-color: var(--tertiary-bg); }
+        .history-item-info { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+        .history-item-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text); font-size: 0.95rem; }
+        .history-item-date { color: var(--secondary-text); font-size: 0.75rem; }
+        .delete-history-btn { color: var(--secondary-text); }
+        .delete-history-btn:hover { color: var(--danger-color); }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <header class="app-header">
+            <button id="historyBtn" class="icon-btn" aria-label="View chat history">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"></path></svg>
+            </button>
+            
+            <img src="logo.gif" alt="AI English Tutor Logo">
+
+            <button id="newChatBtn" class="icon-btn" aria-label="Start new chat">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"></path></svg>
+            </button>
+        </header>
+
+        <main id="chat-container">
+            <p style="text-align: center; color: var(--secondary-text); padding-top: 2rem;">Loading chat session...</p>
+        </main>
+
+        <div class="input-area-container">
+            <div class="input-area">
+                <button id="filterBtn" class="icon-btn" aria-label="Open filters">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"></path></svg>
+                </button>
+                <textarea id="userInput" placeholder="Type your message..." rows="1"></textarea>
+                <button id="sendBtn" class="icon-btn" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="panel-overlay" class="overlay"></div>
+
+        <div id="filter-popover">
+             <h3>Select Tasks</h3>
+             <div id="filters-content">
+                <label class="filter-option"><input type="checkbox" name="filter" value="Describe">#Describe</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="Pronounce">#Pronounce</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="CorrectGrammar" checked>#CorrectGrammar</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="RephraseFluently" checked>#RephraseFluently</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="ExplainThis">#ExplainThis</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="TranslateToBengali">#TranslateToBengali</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="ExplainVocabulary">#ExplainVocabulary</label>
+                <label class="filter-option"><input type="checkbox" name="filter" value="ImproveSentence">#ImproveSentence</label>
+            </div>
+        </div>
+        
+        <aside id="history-panel">
+            <div class="history-header">
+                <h2>Chat History</h2>
+            </div>
+            <div id="history-list-container">
+                <ul id="history-list"></ul>
+            </div>
+        </aside>
+
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const chatContainer = document.getElementById('chat-container');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const newChatBtn = document.getElementById('newChatBtn');
+            const historyBtn = document.getElementById('historyBtn');
+            const historyPanel = document.getElementById('history-panel');
+            const historyList = document.getElementById('history-list');
+            const filterBtn = document.getElementById('filterBtn');
+            const filterPopover = document.getElementById('filter-popover');
+            const panelOverlay = document.getElementById('panel-overlay');
+            const filterCheckboxes = document.querySelectorAll('input[name="filter"]');
+            
+            // --- App State ---
+            let currentChat = [];
+            let chatHistory = [];
+            const CURRENT_CHAT_KEY = 'aiTutorCurrentChat_v2';
+            const CHAT_HISTORY_KEY = 'aiTutorChatHistory_v2';
+            const DEFAULT_FILTERS = ['CorrectGrammar', 'RephraseFluently'];
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                loadChatHistory();
+                loadCurrentChat();
+                updateHistoryList();
+                updateSendButtonState();
+                updateFilterIndicator();
+                handleConnectionChange(); // Check online status
+                userInput.focus();
+            }
+            initialize();
+            
+            // --- EVENT LISTENERS ---
+            userInput.addEventListener('input', () => {
+                userInput.style.height = 'auto';
+                userInput.style.height = `${userInput.scrollHeight}px`;
+                updateSendButtonState();
+            });
+
+            sendBtn.addEventListener('click', handleSendMessage);
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
+            });
+
+            newChatBtn.addEventListener('click', startNewChat);
+            historyBtn.addEventListener('click', () => togglePanel('history'));
+            filterBtn.addEventListener('click', () => togglePanel('filter'));
+            panelOverlay.addEventListener('click', () => {
+                togglePanel('history', false);
+                togglePanel('filter', false);
+            });
+            filterCheckboxes.forEach(cb => cb.addEventListener('change', updateFilterIndicator));
+            window.addEventListener('online', handleConnectionChange);
+            window.addEventListener('offline', handleConnectionChange);
+
+            // --- OFFLINE HANDLING ---
+            function handleConnectionChange() {
+                if (!navigator.onLine) {
+                    sendBtn.classList.remove('active');
+                    userInput.placeholder = "You are offline.";
+                    sendBtn.style.pointerEvents = 'none';
+                } else {
+                    userInput.placeholder = "Type your message...";
+                    sendBtn.style.pointerEvents = 'auto';
+                    updateSendButtonState();
+                }
+            }
+
+            // --- CORE LOGIC ---
+            function handleSendMessage() {
+                if (!navigator.onLine) {
+                    alert("You are offline..");
+                    return;
+                }
+                const messageText = userInput.value.trim();
+                if (!messageText) return;
+
+                addMessageToChat('user', messageText);
+                const selectedFilters = Array.from(filterCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+                
+                showTypingIndicator();
+                clearInput();
+                getAIResponse(messageText, selectedFilters);
+            }
+
+            async function getAIResponse(text, filters) {
+                try {
+                    const apiResponse = await fetch('https://english-learning-prototype.onrender.com/api/gemini', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ prompt: text, tasks: filters })
+                    });
+                    if (!apiResponse.ok) {
+                        const errorData = await apiResponse.json();
+                        throw new Error(errorData.error || `Server error`);
+                    }
+                    const data = await apiResponse.json();
+                    addMessageToChat('ai', data.response);
+                } catch (error) {
+                    addMessageToChat('ai', { fallback: `Connection error: ${error.message}` });
+                } finally {
+                    hideTypingIndicator();
+                }
+            }
+            
+            // --- UI & DATA FORMATTING ---
+            function formatAIResponse(data) {
+                if (typeof data !== 'object' || data === null) return String(data);
+                let html = '';
+                if (data.conversation) return data.conversation;
+                if (data.fallback) return `<strong>Error:</strong> ${data.fallback}`;
+                if (data.correction?.hasError) html += `<div class="ai-response-block"><h4>Correction</h4><p class="corrected-text">${data.correction.correctedText}</p></div>`;
+                if (data.rephrasing) html += `<div class="ai-response-block"><h4>Fluent Rephrasing</h4><p>${data.rephrasing.fluentVersion}</p></div>`;
+                if (data.explanation) html += `<div class="ai-response-block"><h4>Explanation</h4><p><strong>${data.explanation.title}:</strong> ${data.explanation.breakdown}</p></div>`;
+                if (data.translation) html += `<div class="ai-response-block"><h4>Translation (Bengali)</h4><p>${data.translation.translatedText}</p></div>`;
+                if (data.description) html += `<div class="ai-response-block"><h4>Description</h4><p>${data.description}</p></div>`;
+                if (data.pronunciation) html += `<div class="ai-response-block"><h4>Pronunciation</h4><p><strong>IPA:</strong> ${data.pronunciation.ipa}<br><strong>Simple:</strong> ${data.pronunciation.simple}</p></div>`;
+                if (data.improvements?.length) {
+                    html += `<div class="ai-response-block"><h4>Suggested Improvements</h4><ul>`;
+                    data.improvements.forEach(imp => { html += `<li><strong>${imp.suggestion}</strong> (${imp.reason})</li>`; });
+                    html += `</ul></div>`;
+                }
+                if (data.vocabulary?.length) {
+                    html += `<div class="ai-response-block"><h4>Vocabulary</h4><ul>`;
+                    data.vocabulary.forEach(vocab => { html += `<li><strong>${vocab.word}:</strong> ${vocab.definition}<br><em>e.g., "${vocab.example}"</em></li>`; });
+                    html += `</ul></div>`;
+                }
+                return html || "Request processed. No specific output to show.";
+            }
+
+            function addMessageToChat(sender, data) {
+                const content = (sender === 'user') ? data : formatAIResponse(data);
+                currentChat.push({ sender, content: data });
+                saveCurrentChat();
+                const messageEl = document.createElement('div');
+                messageEl.className = `chat-message ${sender}-message`;
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = String(content).replace(/\n/g, '<br>'); // Ensure content is a string
+                messageEl.appendChild(bubble);
+                chatContainer.appendChild(messageEl);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            function startNewChat() {
+                if (currentChat.length > 0) {
+                    const firstUserMessage = currentChat.find(m => m.sender === 'user');
+                    const chatTitle = firstUserMessage ? firstUserMessage.content.substring(0, 40) + '...' : "New Chat";
+                    chatHistory.unshift({ title: chatTitle, messages: currentChat, date: new Date().toISOString() });
+                    if (chatHistory.length > 50) chatHistory.pop();
+                    saveChatHistory();
+                    updateHistoryList();
+                }
+                currentChat = [];
+                chatContainer.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding-top: 2rem;">Started a new chat!</p>';
+                saveCurrentChat();
+                togglePanel('history', false);
+            }
+
+            // --- UI HELPERS ---
+            function togglePanel(panelName, forceShow = null) {
+                const panel = panelName === 'history' ? historyPanel : filterPopover;
+                const shouldShow = forceShow !== null ? forceShow : !panel.classList.contains('show');
+                panel.classList.toggle('show', shouldShow);
+                panelOverlay.classList.toggle('show', historyPanel.classList.contains('show') || filterPopover.classList.contains('show'));
+            }
+
+            function updateSendButtonState() {
+                if (navigator.onLine) {
+                    sendBtn.classList.toggle('active', userInput.value.trim().length > 0);
+                }
+            }
+
+            function clearInput() { userInput.value = ''; userInput.style.height = 'auto'; updateSendButtonState(); }
+
+            function showTypingIndicator() {
+                const loader = chatContainer.querySelector('p');
+                if (loader) loader.remove();
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.id = 'typing-indicator';
+                indicatorDiv.className = 'chat-message ai-message';
+                indicatorDiv.innerHTML = `<div class="bubble typing-indicator"><span>AI is typing...</span></div>`;
+                chatContainer.appendChild(indicatorDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function hideTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+            }
+            
+            function updateFilterIndicator() {
+                const selectedFilters = Array.from(filterCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+                const isDefault = selectedFilters.length === DEFAULT_FILTERS.length && selectedFilters.every(f => DEFAULT_FILTERS.includes(f));
+                filterBtn.classList.toggle('active', !isDefault);
+            }
+
+            // --- HISTORY MANAGEMENT ---
+            function updateHistoryList() {
+                historyList.innerHTML = '';
+                if (chatHistory.length === 0) {
+                    historyList.innerHTML = '<li style="padding: 16px; color: var(--secondary-text);">No chat history yet.</li>';
+                    return;
+                }
+                chatHistory.forEach((chat, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    const date = new Date(chat.date);
+                    const formattedDate = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric'}) + ' ' + date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+                    // UPDATED: Added SVG for delete button
+                    li.innerHTML = `<div class="history-item-info"><span class="history-item-title">${chat.title}</span><span class="history-item-date">${formattedDate}</span></div><button class="icon-btn delete-history-btn" aria-label="Delete chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>`;
+                    li.querySelector('.history-item-info').addEventListener('click', () => { loadChatFromHistory(index); });
+                    li.querySelector('.delete-history-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteHistoryItem(index); });
+                    historyList.appendChild(li);
+                });
+            }
+
+            function loadChatFromHistory(index) {
+                startNewChat();
+                const loaded = chatHistory.splice(index, 1)[0];
+                currentChat = loaded.messages;
+                saveCurrentChat();
+                saveChatHistory();
+                renderChat(currentChat);
+                updateHistoryList();
+                togglePanel('history', false);
+            }
+            
+            function deleteHistoryItem(index) { chatHistory.splice(index, 1); saveChatHistory(); updateHistoryList(); }
+
+            function renderChat(chat) {
+                chatContainer.innerHTML = '';
+                if (chat && chat.length > 0) {
+                    chat.forEach(msg => {
+                        const content = (msg.sender === 'user') ? msg.content : formatAIResponse(msg.content);
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `chat-message ${msg.sender}-message`;
+                        messageDiv.innerHTML = `<div class="bubble">${String(content).replace(/\n/g, '<br>')}</div>`;
+                        chatContainer.appendChild(messageDiv);
+                    });
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                } else {
+                    chatContainer.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding-top: 2rem;">Start a new conversation!</p>';
+                }
+            }
+
+            // --- LOCAL STORAGE FUNCTIONS ---
+            function saveCurrentChat() { localStorage.setItem(CURRENT_CHAT_KEY, JSON.stringify(currentChat)); }
+            function loadCurrentChat() {
+                const savedChat = localStorage.getItem(CURRENT_CHAT_KEY);
+                if (savedChat) { currentChat = JSON.parse(savedChat); renderChat(currentChat); } else { chatContainer.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding-top: 2rem;">Welcome! Start a conversation.</p>'}
+            }
+            function saveChatHistory() { localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory)); }
+            function loadChatHistory() {
+                const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+                if (savedHistory) { chatHistory = JSON.parse(savedHistory); }
+            }
+        });
+    </script>
+</body>
+</html>
