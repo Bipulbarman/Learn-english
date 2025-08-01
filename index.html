@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI English Tutor</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"></noscript>
+
     <style>
         /* --- General Setup and Variables --- */
         :root {
@@ -33,6 +38,30 @@
             color: var(--primary-text);
             overflow: hidden;
         }
+        
+        /* PERFORMANCE OPTIMIZATION (NEW): App Shell Loader Styles */
+        .initial-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 1rem;
+            color: var(--secondary-text);
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--tertiary-bg);
+            border-bottom-color: var(--accent-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         /* --- Main App Layout --- */
         #app-container {
@@ -59,7 +88,7 @@
         #chat-container {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 16px 16px 100px 16px; /* Padding bottom to not hide behind input */
+            padding: 16px 16px 100px 16px;
         }
 
         /* --- Chat Bubbles --- */
@@ -81,7 +110,7 @@
         .ai-message .bubble { background-color: var(--ai-bubble-bg); border-bottom-left-radius: 4px; }
         .typing-indicator { font-style: italic; color: var(--secondary-text); }
         
-        /* --- Formatted AI Response Styles (NEW) --- */
+        /* --- Formatted AI Response Styles --- */
         .ai-message .bubble {
             display: flex;
             flex-direction: column;
@@ -113,14 +142,13 @@
 
         .ai-response-block .corrected-text {
             font-style: italic;
-            color: #a5d6a7; /* A light green for corrections */
+            color: #a5d6a7;
         }
 
         .ai-response-block ul {
             list-style-position: inside;
             padding-left: 5px;
         }
-
 
         /* --- MODERN TYPING BAR --- */
         .input-area-container {
@@ -329,16 +357,21 @@
             <button id="historyBtn" class="icon-btn">
                  <span class="material-symbols-outlined">history</span>
             </button>
-            <img src="https://i.ibb.co/chd0WRhG/10971772.gif" alt="AI English Tutor Logo">
+            <img src="https://i.ibb.co/chd0WRhG/10971772.gif" alt="AI English Tutor Logo" loading="eager" decoding="async">
             <button id="newChatBtn" class="icon-btn">
                 <span class="material-symbols-outlined">add_circle</span>
             </button>
         </header>
 
-        <main id="chat-container"></main>
+        <main id="chat-container">
+            <div id="initial-loader" class="initial-loader">
+                <div class="spinner"></div>
+                <p>Loading your session...</p>
+            </div>
+        </main>
 
         <div class="input-area-container">
-             <div class="input-area">
+            <div class="input-area">
                 <button id="filterBtn" class="icon-btn">
                     <span class="material-symbols-outlined">tune</span>
                 </button>
@@ -370,13 +403,14 @@
                 <h2>Chat History</h2>
             </div>
             <div id="history-list-container">
-                <ul id="history-list">
-                    </ul>
+                <ul id="history-list"></ul>
             </div>
         </aside>
 
     </div>
     <script>
+        // The script is placed at the end of the body, which is a best practice.
+        // It will only execute after the main HTML content is parsed.
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
             const chatContainer = document.getElementById('chat-container');
@@ -394,7 +428,7 @@
             // --- App State ---
             let currentChat = [];
             let chatHistory = [];
-            const CURRENT_CHAT_KEY = 'aiTutorCurrentChat_v2'; // Changed key for new data structure
+            const CURRENT_CHAT_KEY = 'aiTutorCurrentChat_v2';
             const CHAT_HISTORY_KEY = 'aiTutorChatHistory_v2';
             const DEFAULT_FILTERS = ['CorrectGrammar', 'RephraseFluently'];
 
@@ -449,7 +483,6 @@
             }
 
             async function getAIResponse(text, filters) {
-                // ** REAL API CALL to your Render backend **
                 try {
                     const apiResponse = await fetch('https://english-learning-prototype.onrender.com/api/gemini', {
                         method: 'POST',
@@ -479,16 +512,14 @@
 
             function formatAIResponse(data) {
                 if (typeof data !== 'object' || data === null) {
-                    return String(data); // Handle cases where data is not an object
+                    return String(data);
                 }
                 
                 let html = '';
 
-                // Handle simple conversation or fallback
                 if (data.conversation) return data.conversation;
                 if (data.fallback) return `<strong>Error:</strong> ${data.fallback}`;
 
-                // Handle structured data from the backend
                 if (data.correction && data.correction.hasError) {
                     html += `<div class="ai-response-block"><h4>Correction</h4><p class="corrected-text">${data.correction.correctedText}</p></div>`;
                 }
@@ -559,7 +590,8 @@
                     updateHistoryList();
                 }
                 currentChat = [];
-                chatContainer.innerHTML = '';
+                // Clear the chat container and show the loader again for a consistent feel
+                chatContainer.innerHTML = '<div id="initial-loader" class="initial-loader"><p>Started a new chat!</p></div>';
                 saveCurrentChat();
                 togglePanel('history', false);
             }
@@ -583,6 +615,9 @@
             }
 
             function showTypingIndicator() {
+                const loader = document.getElementById('initial-loader');
+                if (loader) loader.remove();
+                
                 const indicatorDiv = document.createElement('div');
                 indicatorDiv.id = 'typing-indicator';
                 indicatorDiv.className = 'chat-message ai-message';
@@ -621,7 +656,7 @@
                     li.querySelector('.history-item-info').addEventListener('click', () => { loadChatFromHistory(index); });
                     li.querySelector('.delete-history-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteHistoryItem(index); });
                     historyList.appendChild(li);
-});
+                });
             }
 
             function loadChatFromHistory(index) {
@@ -643,21 +678,28 @@
 
             function renderChat(chat) {
                 chatContainer.innerHTML = '';
-                chat.forEach(msg => {
-                    const content = (msg.sender === 'user') ? msg.content : formatAIResponse(msg.content);
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = `chat-message ${msg.sender}-message`;
-                    messageDiv.innerHTML = `<div class="bubble">${content.replace(/\n/g, '<br>')}</div>`;
-                    chatContainer.appendChild(messageDiv);
-                });
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                if (chat && chat.length > 0) {
+                    chat.forEach(msg => {
+                        const content = (msg.sender === 'user') ? msg.content : formatAIResponse(msg.content);
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `chat-message ${msg.sender}-message`;
+                        messageDiv.innerHTML = `<div class="bubble">${String(content).replace(/\n/g, '<br>')}</div>`;
+                        chatContainer.appendChild(messageDiv);
+                    });
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                } else {
+                    chatContainer.innerHTML = '<div id="initial-loader" class="initial-loader"><p>Start a new conversation!</p></div>';
+                }
             }
 
             // --- LOCAL STORAGE FUNCTIONS ---
             function saveCurrentChat() { localStorage.setItem(CURRENT_CHAT_KEY, JSON.stringify(currentChat)); }
             function loadCurrentChat() {
                 const savedChat = localStorage.getItem(CURRENT_CHAT_KEY);
-                if (savedChat) { currentChat = JSON.parse(savedChat); if (currentChat.length > 0) renderChat(currentChat); }
+                if (savedChat) { 
+                    currentChat = JSON.parse(savedChat);
+                    renderChat(currentChat);
+                }
             }
             function saveChatHistory() { localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory)); }
             function loadChatHistory() {
